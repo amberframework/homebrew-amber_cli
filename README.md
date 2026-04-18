@@ -5,8 +5,8 @@ Homebrew formulae for the [Amber Framework](https://amberframework.org) CLI and 
 ## Installation
 
 ```bash
-brew tap crimson-knight/amber-cli
-brew install amber-cli
+brew tap amberframework/amber_cli
+brew install amber_cli
 ```
 
 This installs two binaries:
@@ -18,12 +18,12 @@ This installs two binaries:
 
 ```bash
 brew update
-brew upgrade amber-cli
+brew upgrade amber_cli
 ```
 
 ## Uninstall
 
 ```bash
-brew uninstall amber-cli
-brew untap crimson-knight/amber-cli
+brew uninstall amber_cli
+brew untap amberframework/amber_cli
 ```
