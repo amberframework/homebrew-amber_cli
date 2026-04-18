@@ -9,7 +9,7 @@ class AmberCli < Formula
   depends_on "mysql-client"
   depends_on "sqlite"
 
-  conflicts_with "amber", because: "both install an  binary"
+  conflicts_with "amber", because: "both install the amber binary"
 
   on_macos do
     if Hardware::CPU.arm?
