@@ -43,6 +43,7 @@ jobs:
         fi
         brew tap amberframework/amber_cli
         brew install amber_cli
+        brew test amber_cli
         amber --version
         test -x "$(command -v amber-lsp)"
         crystal --version

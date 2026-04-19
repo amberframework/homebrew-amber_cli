@@ -1,5 +1,8 @@
 name: Update Formula
 
+permissions:
+  contents: write
+
 on:
   repository_dispatch:
     types: [release-published]
@@ -10,7 +13,7 @@ jobs:
 
     steps:
     - name: Checkout tap
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Get release info
       id: release
