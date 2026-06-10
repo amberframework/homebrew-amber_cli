@@ -14,14 +14,14 @@ class AmberCli < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/amberframework/amber_cli/releases/download/v2.0.1/amber_cli-darwin-arm64.tar.gz"
-      sha256 "Not"
+      sha256 "435a330e3b2f9ad987740ef01be04445b823757fe83fb3a2620f836acbf6fce7"
     end
   end
 
   on_linux do
     if Hardware::CPU.intel?
       url "https://github.com/amberframework/amber_cli/releases/download/v2.0.1/amber_cli-linux-x86_64.tar.gz"
-      sha256 "Not"
+      sha256 "426eacde20837835674cd04397caa2407bd1e2a4f41bda738254b41298e4da9d"
     end
   end
 

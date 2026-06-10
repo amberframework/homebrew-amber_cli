@@ -24,14 +24,31 @@ jobs:
         CLEAN_VERSION="${VERSION#v}"
         echo "version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
 
-        # Download checksums
+        # Download checksums — fail if assets return 404 or content is not a 64-char hex string
         BASE_URL="https://github.com/amberframework/amber_cli/releases/download/${VERSION}"
 
-        curl -sL "${BASE_URL}/amber_cli-darwin-arm64.tar.gz.sha256" -o darwin.sha256
-        curl -sL "${BASE_URL}/amber_cli-linux-x86_64.tar.gz.sha256" -o linux.sha256
+        curl -fsSL "${BASE_URL}/amber_cli-darwin-arm64.tar.gz.sha256" -o darwin.sha256 || {
+          echo "ERROR: failed to download darwin sha256 for ${VERSION}" >&2; exit 1
+        }
+        curl -fsSL "${BASE_URL}/amber_cli-linux-x86_64.tar.gz.sha256" -o linux.sha256 || {
+          echo "ERROR: failed to download linux sha256 for ${VERSION}" >&2; exit 1
+        }
 
-        echo "darwin_sha256=$(cut -d' ' -f1 < darwin.sha256)" >> $GITHUB_OUTPUT
-        echo "linux_sha256=$(cut -d' ' -f1 < linux.sha256)" >> $GITHUB_OUTPUT
+        DARWIN_SHA="$(cut -d' ' -f1 < darwin.sha256)"
+        LINUX_SHA="$(cut -d' ' -f1 < linux.sha256)"
+
+        # Validate: must be exactly 64 lowercase hex characters
+        if ! echo "${DARWIN_SHA}" | grep -qE '^[0-9a-f]{64}$'; then
+          echo "ERROR: darwin sha256 is not a valid 64-char hex string: '${DARWIN_SHA}'" >&2
+          exit 1
+        fi
+        if ! echo "${LINUX_SHA}" | grep -qE '^[0-9a-f]{64}$'; then
+          echo "ERROR: linux sha256 is not a valid 64-char hex string: '${LINUX_SHA}'" >&2
+          exit 1
+        fi
+
+        echo "darwin_sha256=${DARWIN_SHA}" >> $GITHUB_OUTPUT
+        echo "linux_sha256=${LINUX_SHA}" >> $GITHUB_OUTPUT
 
     - name: Update formula
       env:
