@@ -37,7 +37,13 @@ Use the repository PR template so this context is captured in review.
 
 After a CLI release:
 
-1. confirm the formula version and checksums updated
-2. confirm `Validate Install` passed on macOS
-3. confirm `Validate Install` passed on Ubuntu
-4. if the update fails, patch the formula manually and rerun the smoke workflow
+1. confirm the framework prerelease pinned by the generated app already exists
+2. confirm the CLI release has both platform archives and checksum files
+3. confirm the formula version and checksums updated
+4. confirm `Validate Install` passed on macOS and Ubuntu
+5. confirm the installed binary scaffolded, tested, built, launched, and served
+   both `/` and `/css/app.css`
+6. on macOS, confirm neither executable links to `openssl@1.1`
+7. if the update fails, patch the formula manually and rerun the smoke workflow
+
+Do not call the beta install path ready while either supported platform is red.
