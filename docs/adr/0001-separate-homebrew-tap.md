@@ -5,8 +5,7 @@
 Amber v2 needs a trustworthy install path before the public announcement goes out. The immediate requirement is to verify the exact commands users will run:
 
 ```bash
-brew tap amberframework/amber_cli
-brew install amber_cli
+brew install amberframework/amber_cli/amber_cli
 amber new my_app
 ```
 

@@ -9,8 +9,7 @@ The tap exists to make the Amber v2 install path real and testable before broade
 The path we care about is:
 
 ```bash
-brew tap amberframework/amber_cli
-brew install amber_cli
+brew install amberframework/amber_cli/amber_cli
 brew test amber_cli
 amber new my_app
 ```

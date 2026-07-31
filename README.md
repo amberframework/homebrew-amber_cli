@@ -17,10 +17,12 @@ Intel macOS and Linux ARM64 are not release-gated for this beta.
 The tap and formula are named `amber_cli`; the executable is named `amber`:
 
 ```bash
-brew tap amberframework/amber_cli
-brew install amber_cli
+brew install amberframework/amber_cli/amber_cli
 amber --version
 ```
+
+The fully qualified install follows Homebrew's tap-trust model and trusts only
+the `amber_cli` formula, not every current or future item in the tap.
 
 This installs `amber` and `amber-lsp`, plus the Crystal and runtime libraries
 needed by the release binary.
