@@ -18,6 +18,12 @@ jobs:
       HOMEBREW_NO_INSTALL_CLEANUP: "1"
 
     steps:
+    - name: Checkout tap
+      uses: actions/checkout@v6
+
+    - name: Check beta contract
+      run: scripts/check_beta_contract.sh
+
     - name: Ensure Homebrew (Linux)
       if: runner.os == 'Linux'
       run: |
@@ -49,6 +55,13 @@ jobs:
         crystal --version
         shards --version
 
+    - name: Verify macOS runtime linkage
+      if: runner.os == 'macOS'
+      run: |
+        otool -L "$(command -v amber)"
+        otool -L "$(command -v amber-lsp)"
+        ! otool -L "$(command -v amber)" "$(command -v amber-lsp)" | grep -F 'openssl@1.1'
+
     - name: Scaffold and Build Web App
       run: |
         if [ "$RUNNER_OS" = "Linux" ]; then
@@ -56,10 +69,35 @@ jobs:
         fi
         mkdir smoke
         cd smoke
-        amber new smoke_app -y --no-deps
+        amber new smoke_app --type web -y --no-deps
         test -f smoke_app/shard.yml
         test -f smoke_app/.amber.yml
         cd smoke_app
+        grep -F 'github: amberframework/amber' shard.yml
+        grep -F 'version: 2.0.0-beta.1' shard.yml
+        grep -F 'template: ecr' .amber.yml
+        ! grep -Eiq 'crimson-knight|grant:|gemma:|slang' shard.yml .amber.yml
         shards install
-        mkdir -p bin
+        crystal spec
         crystal build src/smoke_app.cr -o bin/smoke_app
+
+    - name: Launch and probe Web App
+      run: |
+        if [ "$RUNNER_OS" = "Linux" ]; then
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        fi
+        cd smoke/smoke_app
+        AMBER_SERVER_PORT=3210 ./bin/smoke_app >server.log 2>&1 &
+        server_pid="$!"
+        trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+        for attempt in {1..30}; do
+          if curl --fail --silent http://127.0.0.1:3210/ >homepage.html; then
+            break
+          fi
+          sleep 1
+        done
+        curl --fail --silent http://127.0.0.1:3210/ | grep -F 'Amber V2 application is running successfully'
+        curl --fail --silent http://127.0.0.1:3210/css/app.css | grep -F 'Application styles'
+        kill "$server_pid"
+        wait "$server_pid" || true
+        trap - EXIT
