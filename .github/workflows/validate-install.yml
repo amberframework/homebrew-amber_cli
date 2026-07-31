@@ -47,8 +47,7 @@ jobs:
         if [ "$RUNNER_OS" = "Linux" ]; then
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         fi
-        brew tap amberframework/amber_cli
-        brew install amber_cli
+        brew install amberframework/amber_cli/amber_cli
         brew test amber_cli
         amber --version
         test -x "$(command -v amber-lsp)"
