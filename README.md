@@ -37,7 +37,7 @@ amber watch
 
 Open <http://127.0.0.1:3000> and
 <http://127.0.0.1:3000/css/app.css>. The generated app pins
-`amberframework/amber` at `2.0.0-beta.1` and uses ECR.
+`amberframework/amber` at `2.0.0-beta.2` and uses ECR.
 
 ## Update
 

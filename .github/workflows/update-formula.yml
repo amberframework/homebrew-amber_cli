@@ -100,7 +100,7 @@ jobs:
             shard = (testpath/"brew_test_app"/"shard.yml").read
             config = (testpath/"brew_test_app"/".amber.yml").read
             assert_match "github: amberframework/amber", shard
-            assert_match "version: 2.0.0-beta.1", shard
+            assert_match "version: 2.0.0-beta.2", shard
             assert_match "template: ecr", config
             refute_match(/crimson-knight|grant:|gemma:|slang/i, shard + config)
           end

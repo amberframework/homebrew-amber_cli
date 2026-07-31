@@ -74,7 +74,7 @@ jobs:
         test -f smoke_app/.amber.yml
         cd smoke_app
         grep -F 'github: amberframework/amber' shard.yml
-        grep -F 'version: 2.0.0-beta.1' shard.yml
+        grep -F 'version: 2.0.0-beta.2' shard.yml
         grep -F 'template: ecr' .amber.yml
         ! grep -Eiq 'crimson-knight|grant:|gemma:|slang' shard.yml .amber.yml
         shards install

@@ -4,8 +4,8 @@ set -euo pipefail
 grep -F 'brew tap amberframework/amber_cli' README.md
 grep -F 'brew install amber_cli' README.md
 grep -F 'depends_on "openssl@3"' .github/workflows/update-formula.yml
-grep -F 'version: 2.0.0-beta.1' .github/workflows/update-formula.yml
-grep -F "grep -F 'version: 2.0.0-beta.1'" .github/workflows/validate-install.yml
+grep -F 'version: 2.0.0-beta.2' .github/workflows/update-formula.yml
+grep -F "grep -F 'version: 2.0.0-beta.2'" .github/workflows/validate-install.yml
 grep -F "grep -F 'template: ecr'" .github/workflows/validate-install.yml
 grep -F "grep -F 'openssl@1.1'" .github/workflows/validate-install.yml
 
