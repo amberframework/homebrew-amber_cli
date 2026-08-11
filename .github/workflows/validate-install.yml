@@ -12,14 +12,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest, ubuntu-24.04-arm]
     env:
       HOMEBREW_NO_AUTO_UPDATE: "1"
       HOMEBREW_NO_INSTALL_CLEANUP: "1"
 
     steps:
     - name: Checkout tap
-      uses: actions/checkout@v6
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
     - name: Check beta contract
       run: scripts/check_beta_contract.sh
@@ -73,10 +73,18 @@ jobs:
         test -f smoke_app/.amber.yml
         cd smoke_app
         grep -F 'github: amberframework/amber' shard.yml
-        grep -F 'version: 2.0.0-beta.2' shard.yml
+        grep -F 'version: 2.0.0-beta.' shard.yml
+        grep -F 'grant:' shard.yml
+        grep -F 'github: crimson-knight/grant' shard.yml
+        grep -F 'sqlite3:' shard.yml
+        grep -F 'database: sqlite' .amber.yml
+        grep -F 'model: grant' .amber.yml
         grep -F 'template: ecr' .amber.yml
-        ! grep -Eiq 'crimson-knight|grant:|gemma:|slang' shard.yml .amber.yml
+        ! grep -Eiq 'gemma:|slang' shard.yml .amber.yml
         shards install
+        amber generate scaffold Pet name:string:required species:string:required adopted:bool
+        amber database migrate
+        AMBER_ENV=test amber database migrate
         crystal spec
         crystal build src/smoke_app.cr -o bin/smoke_app
 
@@ -105,6 +113,7 @@ jobs:
         grep -F 'locally served CSS and JavaScript' homepage.html
         grep -F '{"imports":{"app":"/js/app.js"}}' homepage.html
         curl --fail --silent http://127.0.0.1:3210/css/app.css | grep -F -- '--amber-accent: #e96918'
+        curl --fail --silent http://127.0.0.1:3210/pets | grep -F 'Pets'
         kill "$server_pid"
         wait "$server_pid" || true
         trap - EXIT

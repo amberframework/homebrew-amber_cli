@@ -9,8 +9,9 @@ This is the official Homebrew distribution layer for the standalone
 |---|---|
 | Apple Silicon macOS | `amber_cli-darwin-arm64.tar.gz` |
 | x86_64 Linux | `amber_cli-linux-x86_64.tar.gz` |
+| ARM64 Linux | `amber_cli-linux-arm64.tar.gz` |
 
-Intel macOS and Linux ARM64 are not release-gated for this beta.
+Intel macOS is not release-gated for this beta.
 
 ## Install
 
@@ -39,7 +40,8 @@ amber watch
 
 Open <http://127.0.0.1:3000> and
 <http://127.0.0.1:3000/css/app.css>. The generated app pins
-`amberframework/amber` at `2.0.0-beta.2` and uses ECR.
+`amberframework/amber` at `2.0.0-beta.3`, uses ECR, and includes Grant,
+SQLite, and Micrate-powered migrations by default.
 
 ## Update
 
