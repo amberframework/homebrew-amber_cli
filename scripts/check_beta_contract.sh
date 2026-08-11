@@ -4,10 +4,14 @@ set -euo pipefail
 grep -F 'brew install amberframework/amber_cli/amber_cli' README.md
 grep -F 'brew install amberframework/amber_cli/amber_cli' .github/workflows/validate-install.yml
 grep -F 'depends_on "openssl@3"' .github/workflows/update-formula.yml
-grep -F 'version: 2.0.0-beta.2' .github/workflows/update-formula.yml
+grep -F 'amber_cli-linux-arm64.tar.gz.sha256' .github/workflows/update-formula.yml
+grep -F 'amber_cli-linux-arm64.tar.gz' .github/workflows/update-formula.yml
 grep -F 'VERSION: ${{ steps.release.outputs.version }}' .github/workflows/update-formula.yml
 grep -F 'gh workflow run validate-install.yml --ref main' .github/workflows/update-formula.yml
-grep -F "grep -F 'version: 2.0.0-beta.2'" .github/workflows/validate-install.yml
+grep -F 'ubuntu-24.04-arm' .github/workflows/validate-install.yml
+grep -F "grep -F 'version: 2.0.0-beta.'" .github/workflows/validate-install.yml
+grep -F "grep -F 'grant:'" .github/workflows/validate-install.yml
+grep -F 'amber database migrate' .github/workflows/validate-install.yml
 grep -F "grep -F 'template: ecr'" .github/workflows/validate-install.yml
 grep -F "grep -F 'openssl@1.1'" .github/workflows/validate-install.yml
 
