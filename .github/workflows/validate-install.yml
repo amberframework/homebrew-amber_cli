@@ -85,6 +85,7 @@ jobs:
         amber generate scaffold Pet name:string:required species:string:required adopted:bool
         amber database migrate
         AMBER_ENV=test amber database migrate
+        amber assets check
         crystal spec
         crystal build src/smoke_app.cr -o bin/smoke_app
 
@@ -111,8 +112,26 @@ jobs:
         fi
         grep -F 'Your new idea' homepage.html
         grep -F 'locally served CSS and JavaScript' homepage.html
-        grep -F '{"imports":{"app":"/js/app.js"}}' homepage.html
-        curl --fail --silent http://127.0.0.1:3210/css/app.css | grep -F -- '--amber-accent: #e96918'
+        asset_path() {
+          ruby -rjson -e 'manifest = JSON.parse(File.read(ARGV[0])); puts manifest.fetch("assets").fetch(ARGV[1]).fetch("path")' \
+            public/assets/manifest.json "$1"
+        }
+        css_url="$(asset_path stylesheets/app.css)"
+        js_url="$(asset_path javascript/app.js)"
+        logo_url="$(asset_path images/amber-crystal.svg)"
+        test -n "$css_url"
+        test -n "$js_url"
+        test -n "$logo_url"
+        grep -F "\"app\":\"$js_url\"" homepage.html
+        grep -F 'integrity="sha256-' homepage.html
+        grep -F "$logo_url" "public/${css_url#/}"
+        curl --fail --silent --dump-header css.headers "http://127.0.0.1:3210$css_url" | grep -F -- '--amber-accent: #e96918'
+        grep -Fi 'Content-Type: text/css' css.headers
+        grep -Fi 'Cache-Control: public, max-age=31536000, immutable' css.headers
+        curl --fail --silent --dump-header js.headers "http://127.0.0.1:3210$js_url" | grep -F 'document.documentElement.dataset.javascript = "ready";'
+        grep -Fi 'Content-Type: text/javascript' js.headers
+        curl --fail --silent --dump-header logo.headers "http://127.0.0.1:3210$logo_url" | grep -F '<svg'
+        grep -Fi 'Content-Type: image/svg+xml' logo.headers
         curl --fail --silent http://127.0.0.1:3210/pets | grep -F 'Pets'
         kill "$server_pid"
         wait "$server_pid" || true
