@@ -1,7 +1,7 @@
 class AmberCli < Formula
   desc "Command-line tool and LSP for the Amber web framework (Crystal)"
   homepage "https://amberframework.org"
-  version "2.0.5"
+  version "2.0.6"
   license "MIT"
 
   depends_on "crystal"
@@ -12,18 +12,18 @@ class AmberCli < Formula
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/amberframework/amber_cli/releases/download/v2.0.5/amber_cli-darwin-arm64.tar.gz"
-      sha256 "ccd29c59b4dc8666084376a4529ec67a1d7d7d48aa4736b09f8697da4d2b99d3"
+      url "https://github.com/amberframework/amber_cli/releases/download/v2.0.6/amber_cli-darwin-arm64.tar.gz"
+      sha256 "4e47aad856427a54799e4275b79deaaaf5e569b32559fae798d99af0eedd6bb0"
     end
   end
 
   on_linux do
     if Hardware::CPU.intel?
-      url "https://github.com/amberframework/amber_cli/releases/download/v2.0.5/amber_cli-linux-x86_64.tar.gz"
-      sha256 "957ece546986145a9f9b8d08054e7ae1134eaeaecf7badd5ffc8f2e54debbff9"
+      url "https://github.com/amberframework/amber_cli/releases/download/v2.0.6/amber_cli-linux-x86_64.tar.gz"
+      sha256 "74cb45729d8c1f208d678003a81017df4832f7dad38e9103ee17583feddd4f73"
     elsif Hardware::CPU.arm?
-      url "https://github.com/amberframework/amber_cli/releases/download/v2.0.5/amber_cli-linux-arm64.tar.gz"
-      sha256 "a28388a750440865589b852024ace203e9b976c48b0231f17b183f1982615a10"
+      url "https://github.com/amberframework/amber_cli/releases/download/v2.0.6/amber_cli-linux-arm64.tar.gz"
+      sha256 "8b914f3cacf8432dee388af4973bb68984676314a8a0f162ac7b6a9040412ac0"
     end
   end
 
@@ -35,7 +35,7 @@ class AmberCli < Formula
   end
 
   test do
-    assert_match "Amber CLI v2.0.5", shell_output("#{bin}/amber --version")
+    assert_match "Amber CLI v2.0.6", shell_output("#{bin}/amber --version")
     raise "amber-lsp binary is missing" unless (bin/"amber-lsp").exist?
     raise "amber-lsp binary is not executable" unless (bin/"amber-lsp").executable?
 
