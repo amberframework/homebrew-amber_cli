@@ -43,6 +43,23 @@ Open <http://127.0.0.1:3000> and
 `amberframework/amber` at `2.0.0-beta.3`, uses ECR, and includes Grant,
 SQLite, and Micrate-powered migrations by default.
 
+## AI agent workflow
+
+Amber CLI itself works with the stock `crystal` compiler from Homebrew. The
+AI-agent workflow (incremental compiler, fast rebuilds) uses the `crystal-alpha`
+command, which comes from the Agent Crystal tap and is intentionally not a
+dependency of this formula, because it builds from source and takes about
+30 minutes:
+
+```bash
+brew install crimson-knight/agent-crystal/agent-crystal
+crystal-alpha --version
+```
+
+`acrystal` and `agent-crystal` are aliases for the same compiler. Agent hooks
+and generators that call `crystal-alpha` fall back to stock `crystal` when it is
+not installed.
+
 ## Update
 
 ```bash
