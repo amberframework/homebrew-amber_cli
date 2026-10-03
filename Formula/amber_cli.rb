@@ -34,6 +34,17 @@ class AmberCli < Formula
     bin.install "amber-lsp"
   end
 
+  def caveats
+    <<~EOS
+      AI agent workflow (optional): the incremental compiler and fast rebuilds
+      use the crystal-alpha command, which is not part of this formula. Install
+      it with:
+        brew install crimson-knight/agent-crystal/agent-crystal
+      It builds from source and takes about 30 minutes. Amber CLI works without
+      it, using the Crystal compiler from Homebrew.
+    EOS
+  end
+
   test do
     assert_match "Amber CLI v2.0.6", shell_output("#{bin}/amber --version")
     raise "amber-lsp binary is missing" unless (bin/"amber-lsp").exist?
