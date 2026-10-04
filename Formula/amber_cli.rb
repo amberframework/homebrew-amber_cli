@@ -3,7 +3,7 @@ class AmberCli < Formula
   homepage "https://amberframework.org"
   url "https://github.com/amberframework/amber_cli/releases/download/v2.0.7/amber_cli-source-2.0.7.tar.gz"
   version "2.0.7"
-  sha256 "6a509e662bdb434710201974e8494af1c39161fee8fe79c47d74fce18024685e"
+  sha256 "87b062226b8ee551d40871a464f3187584d9e53a74f61e224aec6adf82394f48"
   license "MIT"
 
   depends_on "crystal"
