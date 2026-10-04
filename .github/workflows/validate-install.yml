@@ -92,7 +92,7 @@ jobs:
         fi
         grep -F 'require_exact: true' .minecart-policy.yml
         test "$(grep -c 'checksum: git-tree:' shard.lock)" -eq "$(grep -c '^  [a-z_][a-z_0-9]*:$' shard.lock)"
-        minecart install --frozen
+        minecart install --frozen --skip-ai-docs
         amber generate scaffold Pet name:string:required species:string:required adopted:bool
         amber database migrate
         env AMBER_ENV=test amber database migrate

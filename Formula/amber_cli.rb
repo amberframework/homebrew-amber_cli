@@ -3,7 +3,7 @@ class AmberCli < Formula
   homepage "https://amberframework.org"
   url "https://github.com/amberframework/amber_cli/releases/download/v2.0.7/amber_cli-source-2.0.7.tar.gz"
   version "2.0.7"
-  sha256 "95f26e540ef2db86604283f8ae418f22afed0a6fe67839758311bbdaab6d64b8"
+  sha256 "6a509e662bdb434710201974e8494af1c39161fee8fe79c47d74fce18024685e"
   license "MIT"
 
   depends_on "crystal"
@@ -17,13 +17,15 @@ class AmberCli < Formula
 
   def fetch
     ENV["SHARDS_CACHE_PATH"] = (buildpath/".minecart-cache").to_s
-    system "minecart", "install", "--frozen", "--production", "--skip-postinstall", "--skip-executables"
+    system "minecart", "install", "--frozen", "--production", "--skip-ai-docs",
+           "--skip-postinstall", "--skip-executables"
   end
 
   def install
     ENV["SHARDS_CACHE_PATH"] = (buildpath/".minecart-cache").to_s
     ENV["CRYSTAL_CACHE_DIR"] = (buildpath/".crystal-cache").to_s
-    system "minecart", "install", "--frozen", "--production", "--local", "--skip-postinstall", "--skip-executables"
+    system "minecart", "install", "--frozen", "--production", "--local", "--skip-ai-docs",
+           "--skip-postinstall", "--skip-executables"
     system "crystal", "build", "src/amber_cli.cr", "--release", "-o", "amber"
     system "crystal", "build", "src/amber_lsp.cr", "--release", "-o", "amber-lsp"
     bin.install "amber", "amber-lsp"
