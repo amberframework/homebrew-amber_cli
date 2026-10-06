@@ -2,9 +2,9 @@ class AmberCli < Formula
   desc "Command-line tool and LSP for the Amber web framework (Crystal)"
   homepage "https://amberframework.org"
   url "https://github.com/amberframework/amber_cli/releases/download/v2.0.7/amber_cli-source-2.0.7.tar.gz"
-  # Recomputed from git archive at CLI commit ebf66dd81400e21517aed772285e5a2909f2d959.
-  # Confirm the CI-built archive matches this hash before publishing the release.
-  sha256 "c57440eb9cd34a48263c32c10fe0f951927a1730d4544050966c4fb5d399bdfe"
+  # Recomputed from git archive at CLI commit 647da53f785723bc90d466154fdaa1b4d86081ba.
+  # The CI-built source archive must match this hash before publishing the release.
+  sha256 "9954ef9a21e402f50767f13faeb2c614c84732326ddc3f1d49209f8546a7c1fd"
   license "MIT"
 
   depends_on "crystal"
@@ -35,6 +35,10 @@ class AmberCli < Formula
     checksum_directory.mkpath
     lsp_sha256 = (bin/"amber-lsp").sha256
     (checksum_directory/"checksums.txt").write("#{lsp_sha256}  amber-lsp\n")
+
+    api_directory = pkgshare/"api"
+    api_directory.mkpath
+    api_directory.install buildpath/"src/amber_lsp/cards/crystal.yml"
   end
 
   test do
@@ -44,6 +48,9 @@ class AmberCli < Formula
     assert_match "Minecart 2025.11.25.7", shell_output("#{formula_opt_bin("minecart")}/minecart --version")
     checksum_path = pkgshare/"checksums.txt"
     assert_equal "#{(bin/"amber-lsp").sha256}  amber-lsp\n", checksum_path.read
+    api_card_path = pkgshare/"api/crystal.yml"
+    assert_path_exists api_card_path
+    assert_equal "80bf5dff1c453a94d91da83c0f99a093a2997f8070b6a04af4b02b8c03cd454d", api_card_path.sha256
 
     system bin/"amber", "new", "brew_test_app", "--type", "web", "-y", "--no-deps"
     shard = (testpath/"brew_test_app"/"shard.yml").read
