@@ -1,9 +1,9 @@
 class Minecart < Formula
   desc "Crystal dependency manager with checksum locks and assistant setup"
   homepage "https://github.com/crimson-knight/shards"
-  url "https://github.com/crimson-knight/shards/releases/download/v2025.11.25.7/minecart-source-2025.11.25.7.tar.gz"
-  version "2025.11.25.7"
-  sha256 "987181366b4836a37f16f63138c37c37319f76a82e0dff062ca2caa15d37f9f2"
+  url "https://github.com/crimson-knight/shards/releases/download/v2025.11.25.8/minecart-source-2025.11.25.8.tar.gz"
+  version "2025.11.25.8"
+  sha256 "15c7c0af5f29dbd5d651fbfe90bfe1c0cd614a5e72a55ccacc2c246c6e1ed38f"
   license "Apache-2.0"
 
   depends_on "crystal"
@@ -17,7 +17,7 @@ class Minecart < Formula
   end
 
   test do
-    assert_match "Minecart 2025.11.25.7", shell_output("#{bin}/minecart --version")
+    assert_match "Minecart 2025.11.25.8", shell_output("#{bin}/minecart --version")
     assert_path_exists bin/"shards-alpha"
   end
 end
