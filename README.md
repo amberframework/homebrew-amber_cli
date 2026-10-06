@@ -57,6 +57,9 @@ and assistant setup; run those commands before using the app.
 
 Review a new tap commit and both formula checksums before moving the checkout.
 Then run `HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade amberframework/amber_cli/amber_cli`.
+Minecart replaces the `shards-alpha` formula and installs a `shards-alpha`
+command of its own, so run `brew uninstall shards-alpha` first if it is
+installed.
 To inspect a conflicting executable, run `type -a amber` and
 `brew list --versions amber_cli`. Report formula problems at
 <https://github.com/amberframework/homebrew-amber_cli/issues> with the OS,
