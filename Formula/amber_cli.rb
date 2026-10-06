@@ -2,9 +2,9 @@ class AmberCli < Formula
   desc "Command-line tool and LSP for the Amber web framework (Crystal)"
   homepage "https://amberframework.org"
   url "https://github.com/amberframework/amber_cli/releases/download/v2.0.7/amber_cli-source-2.0.7.tar.gz"
-  # Recomputed from git archive at CLI commit 435f4872c7771307948b6f8d99747b2fca64f29e.
+  # Recomputed from git archive at CLI commit ebf66dd81400e21517aed772285e5a2909f2d959.
   # Confirm the CI-built archive matches this hash before publishing the release.
-  sha256 "6b44994990a5febf9af732769b4920db5e2c320403fb838268c2c3a472bfdad3"
+  sha256 "c57440eb9cd34a48263c32c10fe0f951927a1730d4544050966c4fb5d399bdfe"
   license "MIT"
 
   depends_on "crystal"
