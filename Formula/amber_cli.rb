@@ -2,8 +2,7 @@ class AmberCli < Formula
   desc "Command-line tool and LSP for the Amber web framework (Crystal)"
   homepage "https://amberframework.org"
   url "https://github.com/amberframework/amber_cli/releases/download/v2.0.7/amber_cli-source-2.0.7.tar.gz"
-  # Recomputed from git archive at CLI commit faed4b205063a84650b00e2dc02f01793f373527.
-  # The CI-built source archive must match this hash before publishing the release.
+  # git archive of CLI commit faed4b205063a84650b00e2dc02f01793f373527, equal to the published asset.
   sha256 "6e90f3cdba3ed87cefbf7443ab93da627af314fac5960a4b9288ae80e31f591f"
   license "MIT"
 
@@ -69,8 +68,11 @@ class AmberCli < Formula
     check_output = IO.popen([bin/"amber-lsp", "--check", check_file.to_s], &:read)
     assert_match(/\Aamber-lsp: (?:covered|declined)\b/, check_output)
 
-    lookup_output = shell_output("#{bin}/amber-lsp lookup 'Dir.mkdir_p'")
-    assert_match(/amber-lsp lookup: found\b/, lookup_output)
-    assert_match(/Dir\.mkdir_p/, lookup_output)
+    # Lookup indexes a project, so run it inside the generated app.
+    cd testpath/"brew_test_app" do
+      lookup_output = shell_output("#{bin}/amber-lsp lookup 'Dir.mkdir_p'")
+      assert_match(/amber-lsp lookup: found\b/, lookup_output)
+      assert_match(/Dir\.mkdir_p/, lookup_output)
+    end
   end
 end
