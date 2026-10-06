@@ -19,15 +19,18 @@ The formula installs Amber CLI 2.0.7, `amber-lsp`, Minecart 2025.11.25.7,
 Crystal, and the required SQLite, OpenSSL, PostgreSQL, and MySQL libraries.
 Its two release source archives have exact versions and SHA-256 checksums.
 Minecart verifies every CLI Crystal dependency against `shard.lock` before
-compilation. The Homebrew core dependencies are resolved by Homebrew and are
-**not** fixed to exact versions by this tap. `brew trust` authorizes loading
-the tap; it does not freeze the tap. The commit checkout and
-`HOMEBREW_NO_AUTO_UPDATE=1` guard the formula used for the install.
+compilation. The CLI formula installs
+`share/amber_cli/checksums.txt` with the installed `amber-lsp` digest so agent
+hooks can verify the binary. Homebrew core dependencies are resolved by the
+installed core catalog. `brew trust` authorizes loading the tap; it does not
+freeze it. The commit checkout and `HOMEBREW_NO_AUTO_UPDATE=1` guard the formula
+used for the install.
 
 These source archives are release candidates until both upstream assets are
-published at the URLs in `Formula/`. The current public Amber CLI release is
-2.0.6. Do not claim the new install works until the release assets and tap
-commit are available and the install smoke passes.
+published at the URLs in `Formula/`. Before publication, compare the CI-built
+Amber CLI source archive with the formula's recorded SHA-256. Do not claim the
+new install works until the release assets and tap commit are available and the
+install smoke passes.
 
 ## Verify with a web app
 

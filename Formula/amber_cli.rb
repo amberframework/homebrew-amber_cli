@@ -2,8 +2,9 @@ class AmberCli < Formula
   desc "Command-line tool and LSP for the Amber web framework (Crystal)"
   homepage "https://amberframework.org"
   url "https://github.com/amberframework/amber_cli/releases/download/v2.0.7/amber_cli-source-2.0.7.tar.gz"
-  version "2.0.7"
-  sha256 "87b062226b8ee551d40871a464f3187584d9e53a74f61e224aec6adf82394f48"
+  # Recomputed from git archive at CLI commit 435f4872c7771307948b6f8d99747b2fca64f29e.
+  # Confirm the CI-built archive matches this hash before publishing the release.
+  sha256 "6b44994990a5febf9af732769b4920db5e2c320403fb838268c2c3a472bfdad3"
   license "MIT"
 
   depends_on "crystal"
@@ -29,12 +30,20 @@ class AmberCli < Formula
     system "crystal", "build", "src/amber_cli.cr", "--release", "-o", "amber"
     system "crystal", "build", "src/amber_lsp.cr", "--release", "-o", "amber-lsp"
     bin.install "amber", "amber-lsp"
+
+    checksum_directory = pkgshare
+    checksum_directory.mkpath
+    lsp_sha256 = (bin/"amber-lsp").sha256
+    (checksum_directory/"checksums.txt").write("#{lsp_sha256}  amber-lsp\n")
   end
 
   test do
     assert_match "Amber CLI v2.0.7", shell_output("#{bin}/amber --version")
-    assert_path_exists bin/"amber-lsp"
+    assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.7, commit unknown)\n",
+                 shell_output("#{bin}/amber-lsp --version")
     assert_match "Minecart 2025.11.25.7", shell_output("#{formula_opt_bin("minecart")}/minecart --version")
+    checksum_path = pkgshare/"checksums.txt"
+    assert_equal "#{(bin/"amber-lsp").sha256}  amber-lsp\n", checksum_path.read
 
     system bin/"amber", "new", "brew_test_app", "--type", "web", "-y", "--no-deps"
     shard = (testpath/"brew_test_app"/"shard.yml").read
@@ -42,5 +51,19 @@ class AmberCli < Formula
     assert_match "version: 2.0.0-beta.5", shard
     assert_match "version: 0.37.0", shard
     assert_match "require_exact: true", policy
+
+    crystal_alpha_directory = testpath/"tool-bin"
+    crystal_alpha_directory.mkpath
+    (crystal_alpha_directory/"crystal-alpha").make_symlink(formula_opt_bin("crystal")/"crystal")
+    ENV.prepend_path "PATH", crystal_alpha_directory
+
+    check_file = testpath/"formula_check.cr"
+    check_file.write("puts \"amber-lsp formula check\"\n")
+    check_output = IO.popen([bin/"amber-lsp", "--check", check_file.to_s], &:read)
+    assert_match(/\Aamber-lsp: (?:covered|declined)\b/, check_output)
+
+    lookup_output = shell_output("#{bin}/amber-lsp lookup 'Dir.mkdir_p'")
+    assert_match(/amber-lsp lookup: found\b/, lookup_output)
+    assert_match(/Dir\.mkdir_p/, lookup_output)
   end
 end
