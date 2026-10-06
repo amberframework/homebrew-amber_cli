@@ -3,7 +3,7 @@ class Minecart < Formula
   homepage "https://github.com/crimson-knight/shards"
   url "https://github.com/crimson-knight/shards/releases/download/v2025.11.25.7/minecart-source-2025.11.25.7.tar.gz"
   version "2025.11.25.7"
-  sha256 "ec583594cf1f030659c8caf05a89655fb9dfff8354922d77d3e687414e2cff9b"
+  sha256 "987181366b4836a37f16f63138c37c37319f76a82e0dff062ca2caa15d37f9f2"
   license "Apache-2.0"
 
   depends_on "crystal"
