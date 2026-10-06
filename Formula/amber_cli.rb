@@ -15,16 +15,11 @@ class AmberCli < Formula
 
   conflicts_with "amber", because: "both install the amber binary"
 
-  def fetch
-    ENV["SHARDS_CACHE_PATH"] = (buildpath/".minecart-cache").to_s
-    system "minecart", "install", "--frozen", "--production", "--skip-ai-docs",
-           "--skip-postinstall", "--skip-executables"
-  end
-
   def install
     ENV["SHARDS_CACHE_PATH"] = (buildpath/".minecart-cache").to_s
     ENV["CRYSTAL_CACHE_DIR"] = (buildpath/".crystal-cache").to_s
-    system "minecart", "install", "--frozen", "--production", "--local", "--skip-ai-docs",
+    # --frozen installs exactly shard.lock and verifies each shard's SHA-256 checksum.
+    system "minecart", "install", "--frozen", "--production", "--skip-ai-docs",
            "--skip-postinstall", "--skip-executables"
     system "crystal", "build", "src/amber_cli.cr", "--release", "-o", "amber"
     system "crystal", "build", "src/amber_lsp.cr", "--release", "-o", "amber-lsp"
