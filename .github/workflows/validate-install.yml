@@ -82,7 +82,7 @@ jobs:
         test -f smoke_app/.claude/CLAUDE.md
         cd smoke_app
         grep -F 'github: amberframework/amber' shard.yml
-        grep -F 'version: 2.0.0-beta.' shard.yml
+        grep -F 'commit: 21deeec92b9253e9fc7252f994fc3465da0ffd4f # v2.0.0-beta.7' shard.yml
         grep -F 'grant:' shard.yml
         grep -F 'github: crimson-knight/grant' shard.yml
         grep -F 'sqlite3:' shard.yml
@@ -94,6 +94,8 @@ jobs:
         fi
         grep -F 'require_exact: true' .minecart-policy.yml
         test "$(grep -c 'checksum: git-tree:' shard.lock)" -eq "$(grep -c '^  [a-z_][a-z_0-9]*:$' shard.lock)"
+        grep -qxF '    version: 2.0.0-beta.7+git.commit.21deeec92b9253e9fc7252f994fc3465da0ffd4f' shard.lock
+        grep -qxF '    checksum: git-tree:d7af4f30415f80e633c49c2d1ff0c32ac6ac7c1a' shard.lock
         minecart install --frozen --skip-ai-docs
         amber generate scaffold Pet name:string:required species:string:required adopted:bool
         amber database migrate
