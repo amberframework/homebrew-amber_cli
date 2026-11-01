@@ -1,9 +1,9 @@
 class AmberCli < Formula
   desc "Command-line tool and LSP for the Amber web framework (Crystal)"
   homepage "https://amberframework.org"
-  url "https://github.com/amberframework/amber_cli/releases/download/v2.0.7/amber_cli-source-2.0.7.tar.gz"
-  # git archive of CLI commit faed4b205063a84650b00e2dc02f01793f373527, equal to the published asset.
-  sha256 "6e90f3cdba3ed87cefbf7443ab93da627af314fac5960a4b9288ae80e31f591f"
+  url "https://github.com/amberframework/amber_cli/releases/download/v2.0.8/amber_cli-source-2.0.8.tar.gz"
+  # Published asset of CLI tag v2.0.8 (commit f8b60728d7755c6c1b96cd728efb6882df48c6e2); its contents equal that tree.
+  sha256 "ad0ca67fb7b99523890ada2eb6d6a51c93c0c3055cfcf95ae9c67a0912136ff2"
   license "MIT"
 
   depends_on "crystal"
@@ -36,8 +36,8 @@ class AmberCli < Formula
   end
 
   test do
-    assert_match "Amber CLI v2.0.7", shell_output("#{bin}/amber --version")
-    assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.7, commit unknown)\n",
+    assert_match "Amber CLI v2.0.8", shell_output("#{bin}/amber --version")
+    assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.8, commit unknown)\n",
                  shell_output("#{bin}/amber-lsp --version")
     assert_match "Minecart 2025.11.25.8", shell_output("#{formula_opt_bin("minecart")}/minecart --version")
     checksum_path = pkgshare/"checksums.txt"
@@ -49,7 +49,7 @@ class AmberCli < Formula
     system bin/"amber", "new", "brew_test_app", "--type", "web", "-y", "--no-deps"
     shard = (testpath/"brew_test_app"/"shard.yml").read
     policy = (testpath/"brew_test_app"/".minecart-policy.yml").read
-    assert_match "version: 2.0.0-beta.5", shard
+    assert_match "commit: 21deeec92b9253e9fc7252f994fc3465da0ffd4f # v2.0.0-beta.7", shard
     assert_match "version: 0.37.0", shard
     assert_match "require_exact: true", policy
 
