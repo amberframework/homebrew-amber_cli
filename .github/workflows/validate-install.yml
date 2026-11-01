@@ -47,8 +47,10 @@ jobs:
         if [ "$RUNNER_OS" = "Linux" ]; then
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         fi
-        brew trust --tap amberframework/amber_cli
         brew tap amberframework/amber_cli "$GITHUB_WORKSPACE"
+        # Trust after tapping: a tap cloned from the checkout path is trusted
+        # as that tap, so its minecart formula loads as a dependency.
+        brew trust --tap amberframework/amber_cli
         tap_path="$(brew --repo amberframework/amber_cli)"
         test "$(git -C "$tap_path" rev-parse HEAD)" = "$GITHUB_SHA"
         brew install amberframework/amber_cli/amber_cli
