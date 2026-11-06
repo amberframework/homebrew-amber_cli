@@ -15,7 +15,7 @@ commit, and ends with the one Amber install command
 Run the complete sequence from the guide; installing from the moving tip of
 the tap leaves the formula revision unpinned.
 
-The formula installs Amber CLI 2.0.7, `amber-lsp`, Minecart 2025.11.25.8,
+The formula installs Amber CLI 2.0.9, `amber-lsp`, Minecart 2025.11.25.8,
 Crystal, and the required SQLite, OpenSSL, PostgreSQL, and MySQL libraries.
 Its two release source archives have exact versions and SHA-256 checksums.
 Minecart verifies every CLI Crystal dependency against `shard.lock` before
@@ -27,7 +27,7 @@ freeze it. The commit checkout and `HOMEBREW_NO_AUTO_UPDATE=1` guard the formula
 used for the install.
 
 Both source archives are published release assets: Amber CLI
-[v2.0.7](https://github.com/amberframework/amber_cli/releases/tag/v2.0.7) and
+[v2.0.9](https://github.com/amberframework/amber_cli/releases/tag/v2.0.9) and
 Minecart [v2025.11.25.8](https://github.com/crimson-knight/shards/releases/tag/v2025.11.25.8).
 Each formula pins its archive's SHA-256, and a mismatch stops the install.
 
