@@ -7,6 +7,8 @@ V2. They conflict with the old `amber` formula.
 
 ## Install
 
+New to Amber V2? Start with the [onboarding guide](https://github.com/amberframework/amber_cli/blob/main/docs/ONBOARDING.md), which holds the pinned commands and what to check after each step.
+
 Follow the [versioned installation guide](https://amberframework.org/docs/v2/getting-started/installation/)
 for the audited tap commit and complete commands. The sequence begins with
 `brew trust --tap amberframework/amber_cli`, checks out and verifies that exact
