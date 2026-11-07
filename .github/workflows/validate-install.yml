@@ -82,7 +82,7 @@ jobs:
         test -f smoke_app/.claude/CLAUDE.md
         cd smoke_app
         grep -F 'github: amberframework/amber' shard.yml
-        grep -F 'commit: 34a93352eaa89501d24e2b9ff90b058209a22720 # v2.0.0-beta.9' shard.yml
+        grep -F 'commit: d291e0930dd22b14a2d10f75a9de063abb0e64e4 # v2.0.0-beta.10' shard.yml
         grep -F 'grant:' shard.yml
         grep -F 'github: crimson-knight/grant' shard.yml
         grep -F 'sqlite3:' shard.yml
@@ -93,9 +93,9 @@ jobs:
           exit 1
         fi
         grep -F 'require_exact: true' .minecart-policy.yml
-        test "$(grep -c 'checksum: git-tree:' shard.lock)" -eq "$(grep -c '^  [a-z_][a-z_0-9]*:$' shard.lock)"
-        grep -qxF '    version: 2.0.0-beta.9+git.commit.34a93352eaa89501d24e2b9ff90b058209a22720' shard.lock
-        grep -qxF '    checksum: git-tree:f1e7332d02229aec58ab5303ade7fc6c9d14fcee' shard.lock
+        test "$(grep -c 'checksum: sha256-v2:' shard.lock)" -eq "$(grep -c '^  [a-z_][a-z_0-9]*:$' shard.lock)"
+        grep -qxF '    version: 2.0.0-beta.10+git.commit.d291e0930dd22b14a2d10f75a9de063abb0e64e4' shard.lock
+        grep -qxF '    checksum: sha256-v2:8d354db3b41625db0362162a34836fe10a8b11a378f3837d34cc6bbcece1cb94' shard.lock
         minecart install --frozen --skip-ai-docs
         amber generate scaffold Pet name:string:required species:string:required adopted:bool
         amber database migrate

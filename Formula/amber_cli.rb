@@ -1,9 +1,9 @@
 class AmberCli < Formula
   desc "Command-line tool and LSP for the Amber web framework (Crystal)"
   homepage "https://amberframework.org"
-  url "https://github.com/amberframework/amber_cli/releases/download/v2.0.9/amber_cli-source-2.0.9.tar.gz"
-  # Published asset of CLI tag v2.0.9 (commit b1ad54dd36c2b627e886a889bfd84c89f6b657b0); its contents equal that tree.
-  sha256 "633c625135451f3f8ecfa05ec9e61df18242ffe8ff5e970b40bd25d7a5e520b2"
+  url "https://github.com/amberframework/amber_cli/releases/download/v2.0.10/amber_cli-source-2.0.10.tar.gz"
+  # Published asset of CLI tag v2.0.10 (commit 30f3b4024ce3161704ddb79667ecae6e193eb917); its contents equal that tree.
+  sha256 "6dee2a64ebb27fb74a6ec50b7093508401e490ce581da35e3047e4ee57005ca9"
   license "MIT"
 
   depends_on "crystal"
@@ -18,6 +18,8 @@ class AmberCli < Formula
   def install
     ENV["SHARDS_CACHE_PATH"] = (buildpath/".minecart-cache").to_s
     ENV["CRYSTAL_CACHE_DIR"] = (buildpath/".crystal-cache").to_s
+    # The source archive has no git checkout, so the formula names the commit amber-lsp reports.
+    ENV["AMBER_CLI_BUILD_COMMIT"] = "30f3b4024ce3"
     # --frozen installs exactly shard.lock and verifies each shard's SHA-256 checksum.
     system "minecart", "install", "--frozen", "--production", "--skip-ai-docs",
            "--skip-postinstall", "--skip-executables"
@@ -36,10 +38,10 @@ class AmberCli < Formula
   end
 
   test do
-    assert_match "Amber CLI v2.0.9", shell_output("#{bin}/amber --version")
-    assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.9, commit unknown)\n",
+    assert_match "Amber CLI v2.0.10", shell_output("#{bin}/amber --version")
+    assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.10, commit 30f3b4024ce3)\n",
                  shell_output("#{bin}/amber-lsp --version")
-    assert_match "Minecart 2025.11.25.8", shell_output("#{formula_opt_bin("minecart")}/minecart --version")
+    assert_match "Minecart 2025.11.25.9", shell_output("#{formula_opt_bin("minecart")}/minecart --version")
     checksum_path = pkgshare/"checksums.txt"
     assert_equal "#{(bin/"amber-lsp").sha256}  amber-lsp\n", checksum_path.read
     api_card_path = pkgshare/"api/crystal.yml"
@@ -49,7 +51,7 @@ class AmberCli < Formula
     system bin/"amber", "new", "brew_test_app", "--type", "web", "-y", "--no-deps"
     shard = (testpath/"brew_test_app"/"shard.yml").read
     policy = (testpath/"brew_test_app"/".minecart-policy.yml").read
-    assert_match "commit: 34a93352eaa89501d24e2b9ff90b058209a22720 # v2.0.0-beta.9", shard
+    assert_match "commit: d291e0930dd22b14a2d10f75a9de063abb0e64e4 # v2.0.0-beta.10", shard
     assert_match "version: 0.37.1", shard
     assert_match "require_exact: true", policy
 
