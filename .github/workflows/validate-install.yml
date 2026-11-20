@@ -82,10 +82,15 @@ jobs:
         test -f smoke_app/.claude/CLAUDE.md
         cd smoke_app
         grep -F 'github: amberframework/amber' shard.yml
-        grep -F 'commit: d291e0930dd22b14a2d10f75a9de063abb0e64e4 # v2.0.0-beta.10' shard.yml
+        grep -F 'commit: f987f1bb19b789f8f14b000b6ee00ed496fe6cbb # v2.0.0-beta.11' shard.yml
         grep -F 'grant:' shard.yml
         grep -F 'github: crimson-knight/grant' shard.yml
-        grep -F 'sqlite3:' shard.yml
+        grep -F 'commit: 7bb4b9d45e74c490e6f3ad80cef8cc1cebd5b889 # v0.24.0' shard.yml
+        grep -F 'github: amberframework/asset_pipeline' shard.yml
+        grep -F 'commit: 73c89c3417a5282d9ac4179b283bcc660b7f898a # v0.38.0' shard.yml
+        if grep -F 'crystal-sqlite3' shard.yml; then
+          exit 1
+        fi
         grep -F 'database: sqlite' .amber.yml
         grep -F 'model: grant' .amber.yml
         grep -F 'template: ecr' .amber.yml
@@ -94,8 +99,12 @@ jobs:
         fi
         grep -F 'require_exact: true' .minecart-policy.yml
         test "$(grep -c 'checksum: sha256-v2:' shard.lock)" -eq "$(grep -c '^  [a-z_][a-z_0-9]*:$' shard.lock)"
-        grep -qxF '    version: 2.0.0-beta.10+git.commit.d291e0930dd22b14a2d10f75a9de063abb0e64e4' shard.lock
-        grep -qxF '    checksum: sha256-v2:8d354db3b41625db0362162a34836fe10a8b11a378f3837d34cc6bbcece1cb94' shard.lock
+        grep -qxF '    version: 2.0.0-beta.11+git.commit.f987f1bb19b789f8f14b000b6ee00ed496fe6cbb' shard.lock
+        grep -qxF '    checksum: sha256-v2:732bd8a19fed53e2e8ef0ee768dab03466abf502324d55de5f81961ac75456fa' shard.lock
+        grep -qxF '    version: 0.24.0+git.commit.7bb4b9d45e74c490e6f3ad80cef8cc1cebd5b889' shard.lock
+        grep -qxF '    checksum: sha256-v2:0c295bd9da92146c5482c63326adb402b24e33c152af86025a27f9da1a086f51' shard.lock
+        grep -qxF '    version: 0.38.0+git.commit.73c89c3417a5282d9ac4179b283bcc660b7f898a' shard.lock
+        grep -qxF '    checksum: sha256-v2:80ea8ac95943a3c5be438e68c2ef2f00d9b9783f0787fcd67ef346f135d9510c' shard.lock
         minecart install --frozen --skip-ai-docs
         amber generate scaffold Pet name:string:required species:string:required adopted:bool
         amber database migrate
