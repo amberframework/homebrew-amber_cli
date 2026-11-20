@@ -16,6 +16,10 @@ class AmberCli < Formula
   conflicts_with "amber", because: "both install the amber binary"
 
   def install
+    # Crystal programs trust $PWD for Dir.current and stop when they cannot stat it. Homebrew
+    # keeps the caller's $PWD but denies reads under ~/Documents, ~/.claude and similar folders,
+    # so a build started from one of them crashed minecart and crystal. Use the build directory.
+    ENV["PWD"] = buildpath.to_s
     ENV["SHARDS_CACHE_PATH"] = (buildpath/".minecart-cache").to_s
     ENV["CRYSTAL_CACHE_DIR"] = (buildpath/".crystal-cache").to_s
     # The source archive has no git checkout, so the formula names the commit amber-lsp reports.
@@ -38,6 +42,8 @@ class AmberCli < Formula
   end
 
   test do
+    # Same $PWD reset as install: the test sandbox denies the same folders.
+    ENV["PWD"] = testpath.to_s
     assert_match "Amber CLI v2.0.11", shell_output("#{bin}/amber --version")
     assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.11, commit 72df758d64a0)\n",
                  shell_output("#{bin}/amber-lsp --version")
