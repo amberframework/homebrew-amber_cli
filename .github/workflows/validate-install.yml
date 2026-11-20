@@ -53,6 +53,11 @@ jobs:
         brew trust --tap amberframework/amber_cli
         tap_path="$(brew --repo amberframework/amber_cli)"
         test "$(git -C "$tap_path" rev-parse HEAD)" = "$GITHUB_SHA"
+        if [ "$RUNNER_OS" = "macOS" ]; then
+          # Homebrew denies sandboxed reads under ~/Documents; install from there like a user would.
+          mkdir -p "$HOME/Documents/amber-install-from-here"
+          cd "$HOME/Documents/amber-install-from-here"
+        fi
         brew install amberframework/amber_cli/amber_cli
         brew test amber_cli
         amber --version
