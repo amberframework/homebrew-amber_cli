@@ -17,6 +17,8 @@ class Minecart < Formula
   end
 
   test do
+    # Homebrew can hand the test a $PWD it may not read, and Crystal's Dir.current stops on it.
+    ENV["PWD"] = testpath.to_s
     assert_match "Minecart 2025.11.25.9", shell_output("#{bin}/minecart --version")
     assert_path_exists bin/"shards-alpha"
   end
