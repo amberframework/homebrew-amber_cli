@@ -87,10 +87,10 @@ jobs:
         test -f smoke_app/.claude/CLAUDE.md
         cd smoke_app
         grep -F 'github: amberframework/amber' shard.yml
-        grep -F 'commit: 834ef5d2790a1486b4c879e1b87ecd0c32e7809a # v2.0.0-beta.12' shard.yml
+        grep -F 'commit: 346ce766853d3916f3cf1d391921dafb907615bd # v2.0.0-beta.13' shard.yml
         grep -F 'grant:' shard.yml
         grep -F 'github: crimson-knight/grant' shard.yml
-        grep -F 'commit: 7bb4b9d45e74c490e6f3ad80cef8cc1cebd5b889 # v0.24.0' shard.yml
+        grep -F 'commit: eb55ebd1ce1c7011b08288cc3e9e943581bea77f # v0.25.0' shard.yml
         grep -F 'github: amberframework/asset_pipeline' shard.yml
         grep -F 'commit: 73c89c3417a5282d9ac4179b283bcc660b7f898a # v0.38.0' shard.yml
         if grep -F 'crystal-sqlite3' shard.yml; then
@@ -104,10 +104,10 @@ jobs:
         fi
         grep -F 'require_exact: true' .minecart-policy.yml
         test "$(grep -c 'checksum: sha256-v2:' shard.lock)" -eq "$(grep -c '^  [a-z_][a-z_0-9]*:$' shard.lock)"
-        grep -qxF '    version: 2.0.0-beta.12+git.commit.834ef5d2790a1486b4c879e1b87ecd0c32e7809a' shard.lock
-        grep -qxF '    checksum: sha256-v2:e54b07880db48f675951fc3d29221c97e3bed867d777972962d3b750ca6dfe5b' shard.lock
-        grep -qxF '    version: 0.24.0+git.commit.7bb4b9d45e74c490e6f3ad80cef8cc1cebd5b889' shard.lock
-        grep -qxF '    checksum: sha256-v2:0c295bd9da92146c5482c63326adb402b24e33c152af86025a27f9da1a086f51' shard.lock
+        grep -qxF '    version: 2.0.0-beta.13+git.commit.346ce766853d3916f3cf1d391921dafb907615bd' shard.lock
+        grep -qxF '    checksum: sha256-v2:b2087f907b51e65f5e6a1af36a663408fb5383d127377e35c2fbf0c0a735a11e' shard.lock
+        grep -qxF '    version: 0.25.0+git.commit.eb55ebd1ce1c7011b08288cc3e9e943581bea77f' shard.lock
+        grep -qxF '    checksum: sha256-v2:6296051f79683e5f70d549d6a5fa947e6300d68b85004746e0df5bcca47840a1' shard.lock
         grep -qxF '    version: 0.38.0+git.commit.73c89c3417a5282d9ac4179b283bcc660b7f898a' shard.lock
         grep -qxF '    checksum: sha256-v2:80ea8ac95943a3c5be438e68c2ef2f00d9b9783f0787fcd67ef346f135d9510c' shard.lock
         minecart install --frozen --skip-ai-docs
