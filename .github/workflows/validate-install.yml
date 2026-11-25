@@ -83,6 +83,10 @@ jobs:
         # has no bottle for the runner, installing it first builds it as a target.
         brew install amberframework/amber_cli/minecart
         brew install amberframework/amber_cli/amber_cli
+        # Show amber-lsp's lookup in full before the formula test asserts on it.
+        lookup_probe="$(mktemp -d)"
+        (cd "$lookup_probe" && amber new lookup_probe --type web -y --no-deps >/dev/null &&
+          cd lookup_probe && amber-lsp lookup 'Dir.mkdir_p'; echo "amber-lsp lookup exit $?") || true
         brew test amber_cli
         amber --version
         test -x "$(command -v amber-lsp)"

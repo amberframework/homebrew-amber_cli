@@ -36,14 +36,19 @@ class AmberCli < Formula
     system crystal_alpha, "build", "src/amber_lsp.cr", "--release", "-o", "amber-lsp"
     bin.install "amber", "amber-lsp"
 
-    checksum_directory = pkgshare
-    checksum_directory.mkpath
-    lsp_sha256 = (bin/"amber-lsp").sha256
-    (checksum_directory/"checksums.txt").write("#{lsp_sha256}  amber-lsp\n")
-
     api_directory = pkgshare/"api"
     api_directory.mkpath
     api_directory.install buildpath/"src/amber_lsp/cards/crystal.yml"
+  end
+
+  # Agent hooks check amber-lsp against share/amber_cli/checksums.txt. Homebrew
+  # rewrites and re-signs the binary when it bottles and pours it, so the digest is
+  # taken here, of the bytes the keg finally holds.
+  post_install_steps do
+    run "/usr/bin/shasum", args:           ["-a", "256", "amber-lsp"],
+                           chdir:          "{{bin}}",
+                           stdout_path:    "{{pkgshare}}/checksums.txt",
+                           writable_paths: ["{{pkgshare}}"]
   end
 
   def crystal_alpha
