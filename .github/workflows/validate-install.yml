@@ -1,6 +1,7 @@
 name: Validate Install
 
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch:
@@ -12,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, ubuntu-24.04-arm]
+        os: [macos-26, ubuntu-latest, ubuntu-24.04-arm]
     env:
       HOMEBREW_NO_AUTO_UPDATE: "1"
       HOMEBREW_NO_INSTALL_CLEANUP: "1"
@@ -42,6 +43,26 @@ jobs:
         uname -a
         uname -m
 
+    # The formulae build with the AgentC compiler. On the GitHub runners Homebrew
+    # builds it from source unless asked for its bottle, so it is installed first,
+    # from its bottle, at a reviewed commit of its tap.
+    - name: Install the AgentC compiler from its bottle
+      env:
+        COMPILER_TAP: crimson-knight/agent-crystal
+        COMPILER_TAP_COMMIT: f410d5034319346f2f0a88b4de53c9fe6ce17d76
+      run: |
+        if [ "$RUNNER_OS" = "Linux" ]; then
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        fi
+        brew tap "$COMPILER_TAP"
+        compiler_tap_path="$(brew --repo "$COMPILER_TAP")"
+        git -C "$compiler_tap_path" fetch --quiet origin "$COMPILER_TAP_COMMIT"
+        git -C "$compiler_tap_path" checkout --quiet --detach "$COMPILER_TAP_COMMIT"
+        test "$(git -C "$compiler_tap_path" rev-parse HEAD)" = "$COMPILER_TAP_COMMIT"
+        brew trust --tap "$COMPILER_TAP"
+        brew install --force-bottle "$COMPILER_TAP/agent-crystal"
+        crystal-alpha --version
+
     - name: Install Amber CLI
       run: |
         if [ "$RUNNER_OS" = "Linux" ]; then
@@ -62,7 +83,7 @@ jobs:
         brew test amber_cli
         amber --version
         test -x "$(command -v amber-lsp)"
-        crystal --version
+        crystal-alpha --version
         minecart --version
 
     - name: Verify macOS runtime linkage
@@ -117,8 +138,8 @@ jobs:
         amber database migrate
         env AMBER_ENV=test amber database migrate
         amber assets check
-        crystal spec
-        crystal build src/smoke_app.cr -o bin/smoke_app
+        crystal-alpha spec
+        crystal-alpha build src/smoke_app.cr -o bin/smoke_app
 
     - name: Launch and probe Web App
       run: |

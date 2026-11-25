@@ -17,8 +17,12 @@ commit, and ends with the one Amber install command
 Run the complete sequence from the guide; installing from the moving tip of
 the tap leaves the formula revision unpinned.
 
-The formula installs Amber CLI 2.0.17, `amber-lsp`, Minecart 2025.11.25.9,
-Crystal, and the required SQLite, OpenSSL, PostgreSQL, and MySQL libraries.
+The formula installs Amber CLI 2.0.17, `amber-lsp`, Minecart 2025.11.25.9, the
+AgentC Crystal compiler (`crimson-knight/agent-crystal`, which provides
+`crystal-alpha`), and the required SQLite, OpenSSL, and PostgreSQL libraries.
+On Apple silicon with macOS 26 or later, Homebrew pours prebuilt bottles of
+Amber CLI and Minecart, each pinned by SHA-256 in its formula; other systems
+build them from source.
 Its two release source archives have exact versions and SHA-256 checksums.
 Minecart verifies every CLI Crystal dependency against `shard.lock` before
 compilation. The CLI formula installs
@@ -45,8 +49,8 @@ minecart --version
 amber new amber_beta_smoke --type web -y
 cd amber_beta_smoke
 minecart install --frozen --skip-ai-docs
-crystal spec
-crystal build src/amber_beta_smoke.cr -o bin/amber_beta_smoke
+crystal-alpha spec
+crystal-alpha build src/amber_beta_smoke.cr -o bin/amber_beta_smoke
 amber watch
 ```
 

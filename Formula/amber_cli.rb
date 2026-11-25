@@ -6,10 +6,10 @@ class AmberCli < Formula
   sha256 "2617187e439c1e5c5716864ae8c0dc37690b3b085deda8676f046f9ba38ce65d"
   license "MIT"
 
-  depends_on "crystal"
+  # amber and amber-lsp build with the AgentC compiler, and amber-lsp runs it to index projects.
+  depends_on "crimson-knight/agent-crystal/agent-crystal"
   depends_on "libpq"
   depends_on "minecart"
-  depends_on "mysql-client"
   depends_on "openssl@3"
   depends_on "sqlite"
 
@@ -29,8 +29,8 @@ class AmberCli < Formula
            "--skip-postinstall", "--skip-executables"
     # amber calls no OpenSSL: Beryl does its cryptography and its database drivers
     # speak TLS 1.3 on Beryl, so the binary links no libssl or libcrypto.
-    system "crystal", "build", "src/amber_cli.cr", "-Dwithout_openssl", "--release", "-o", "amber"
-    system "crystal", "build", "src/amber_lsp.cr", "--release", "-o", "amber-lsp"
+    system crystal_alpha, "build", "src/amber_cli.cr", "-Dwithout_openssl", "--release", "-o", "amber"
+    system crystal_alpha, "build", "src/amber_lsp.cr", "--release", "-o", "amber-lsp"
     bin.install "amber", "amber-lsp"
 
     checksum_directory = pkgshare
@@ -41,6 +41,10 @@ class AmberCli < Formula
     api_directory = pkgshare/"api"
     api_directory.mkpath
     api_directory.install buildpath/"src/amber_lsp/cards/crystal.yml"
+  end
+
+  def crystal_alpha
+    formula_opt_bin("crimson-knight/agent-crystal/agent-crystal")/"crystal-alpha"
   end
 
   test do
@@ -69,10 +73,7 @@ class AmberCli < Formula
       refute_match(/libssl|libcrypto/, linkage)
     end
 
-    crystal_alpha_directory = testpath/"tool-bin"
-    crystal_alpha_directory.mkpath
-    (crystal_alpha_directory/"crystal-alpha").make_symlink(formula_opt_bin("crystal")/"crystal")
-    ENV.prepend_path "PATH", crystal_alpha_directory
+    ENV.prepend_path "PATH", crystal_alpha.dirname
 
     check_file = testpath/"formula_check.cr"
     check_file.write("puts \"amber-lsp formula check\"\n")
