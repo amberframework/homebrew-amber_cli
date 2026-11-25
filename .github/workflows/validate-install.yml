@@ -71,6 +71,8 @@ jobs:
         otool -L "$(command -v amber)"
         otool -L "$(command -v amber-lsp)"
         ! otool -L "$(command -v amber)" "$(command -v amber-lsp)" | grep -F 'openssl@1.1'
+        # Amber CLI 2.0.17 links no OpenSSL.
+        ! otool -L "$(command -v amber)" | grep -E 'libssl|libcrypto'
 
     - name: Scaffold and Build Web App
       run: |
@@ -87,12 +89,12 @@ jobs:
         test -f smoke_app/.claude/CLAUDE.md
         cd smoke_app
         grep -F 'github: amberframework/amber' shard.yml
-        grep -F 'commit: 0830e3fdbc5e05be851c3c7ae7bf03b67be10732 # v2.0.0-beta.15' shard.yml
+        grep -F 'commit: 261cf2d3b4a6f3292fefb8113e71e0fe6900fcee # v2.0.0-beta.16' shard.yml
         grep -F 'grant:' shard.yml
         grep -F 'github: crimson-knight/grant' shard.yml
-        grep -F 'commit: b83a82f0261509d4ce1f26fadb318c8ba132a066 # v0.26.0' shard.yml
+        grep -F 'commit: 4ba859e673a85de91b5dd815556ee83be3cc13b2 # v0.28.2' shard.yml
         grep -F 'github: amberframework/asset_pipeline' shard.yml
-        grep -F 'commit: 84f3188239e43dc6e0bcfd2e72074e8ec67156cd # v0.40.0' shard.yml
+        grep -F 'commit: 9a0447c0e10d645307e8532c7794b89491281210 # v0.40.1' shard.yml
         if grep -F 'crystal-sqlite3' shard.yml; then
           exit 1
         fi
@@ -104,12 +106,12 @@ jobs:
         fi
         grep -F 'require_exact: true' .minecart-policy.yml
         test "$(grep -c 'checksum: sha256-v2:' shard.lock)" -eq "$(grep -c '^  [a-z_][a-z_0-9]*:$' shard.lock)"
-        grep -qxF '    version: 2.0.0-beta.15+git.commit.0830e3fdbc5e05be851c3c7ae7bf03b67be10732' shard.lock
-        grep -qxF '    checksum: sha256-v2:14df1ff766414599f53a8be6816023374ba01cc6a2bd6d61ad1cabb81d88ad28' shard.lock
-        grep -qxF '    version: 0.26.0+git.commit.b83a82f0261509d4ce1f26fadb318c8ba132a066' shard.lock
-        grep -qxF '    checksum: sha256-v2:886b86c249fa5f7ec3d4b66a0f700d8647687b3b9984b7f580cbc2c75b5306b9' shard.lock
-        grep -qxF '    version: 0.40.0+git.commit.84f3188239e43dc6e0bcfd2e72074e8ec67156cd' shard.lock
-        grep -qxF '    checksum: sha256-v2:137195ff733af93d36787d4a965a1846bb4795347a6eced8a5dd3f015ee729b9' shard.lock
+        grep -qxF '    version: 2.0.0-beta.16+git.commit.261cf2d3b4a6f3292fefb8113e71e0fe6900fcee' shard.lock
+        grep -qxF '    checksum: sha256-v2:9f7aa2e42de37b244efe33afa66c2f60177ba0d82968afc6ac2f728a3f978e77' shard.lock
+        grep -qxF '    version: 0.28.2+git.commit.4ba859e673a85de91b5dd815556ee83be3cc13b2' shard.lock
+        grep -qxF '    checksum: sha256-v2:cd018dbf347f2dbb3591f9bd671c59ecff58bdfc98383a1a5b03d675228f5990' shard.lock
+        grep -qxF '    version: 0.40.1+git.commit.9a0447c0e10d645307e8532c7794b89491281210' shard.lock
+        grep -qxF '    checksum: sha256-v2:d34f0ec99a825eb90fd651676d7aff40b3cca7277f31db9f06e0d3b1e8164e8d' shard.lock
         minecart install --frozen --skip-ai-docs
         amber generate scaffold Pet name:string:required species:string:required adopted:bool
         amber database migrate
