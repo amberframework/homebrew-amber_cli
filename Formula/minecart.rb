@@ -47,7 +47,7 @@ class Minecart < Formula
     else
       list_of_lines = shell_output("ldd #{libexec}/minecart").lines
       list_of_libraries = list_of_lines.map { |line| File.basename(line.strip.split.first) }
-      operating_system_library = /\A(linux-vdso\.so|libc\.so|libm\.so|libgcc_s\.so|libpthread\.so|libdl\.so|ld-linux)/
+      operating_system_library = /\A(linux-vdso\.so|libc\.so|libm\.so|libgcc_s\.so|libpthread\.so|libdl\.so|ld-linux|ld\.so)/
       assert_empty list_of_libraries.grep_v(operating_system_library)
     end
 
