@@ -5,6 +5,9 @@ class Minecart < Formula
   version "2025.11.25.9"
   sha256 "eea3951ec589fcf005517514a5b83d0d6702bd82e5e261ac0bf38d6900204ec2"
   license "Apache-2.0"
+  # Revision 1 builds with agent-crystal and ships bottles, so `brew upgrade` replaces
+  # a copy built with homebrew-core crystal.
+  revision 1
 
   # Minecart builds with the AgentC compiler and runs it to read the Crystal
   # version and to build shard executables.

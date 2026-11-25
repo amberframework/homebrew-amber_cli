@@ -5,6 +5,9 @@ class AmberCli < Formula
   # Published asset of CLI tag v2.0.17 (commit 20fbaeec4c88ecfd255d6e3b36623c023b908266); its contents equal that tree.
   sha256 "2617187e439c1e5c5716864ae8c0dc37690b3b085deda8676f046f9ba38ce65d"
   license "MIT"
+  # Revision 1 builds with agent-crystal and ships bottles, so `brew upgrade` replaces
+  # a copy built with homebrew-core crystal.
+  revision 1
 
   # amber and amber-lsp build with the AgentC compiler, and amber-lsp runs it to index projects.
   depends_on "crimson-knight/agent-crystal/agent-crystal"
