@@ -1,0 +1,55 @@
+name: Minecart linkage
+
+# Builds the minecart formula from its source archive, runs its test (which
+# checks that the binary links only the operating system's libraries), and
+# prints the linkage, on Apple silicon macOS and on Linux arm64 and x86_64.
+
+on:
+  pull_request:
+    paths:
+      - Formula/minecart.rb
+      - .github/workflows/minecart-linkage.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  minecart:
+    name: minecart on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-26, ubuntu-24.04, ubuntu-24.04-arm]
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
+      HOMEBREW_NO_INSTALL_FROM_API: "1"
+    steps:
+      - name: Checkout tap
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Homebrew on Linux
+        if: runner.os == 'Linux'
+        run: echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
+
+      - name: Install minecart from this tap
+        run: |
+          brew tap amberframework/amber_cli "$GITHUB_WORKSPACE"
+          brew trust --tap amberframework/amber_cli || true
+          test "$(git -C "$(brew --repo amberframework/amber_cli)" rev-parse HEAD)" = "$GITHUB_SHA"
+          # The AgentC compiler pinned to the tap commit whose bottles carry incremental-3.
+          brew tap crimson-knight/agent-crystal
+          git -C "$(brew --repo crimson-knight/agent-crystal)" checkout --detach f410d5034319346f2f0a88b4de53c9fe6ce17d76
+          brew install crimson-knight/agent-crystal/agent-crystal
+          crystal-alpha --version
+          brew install --build-from-source amberframework/amber_cli/minecart
+          brew test amberframework/amber_cli/minecart
+          minecart --version
+
+      - name: Show linkage
+        run: |
+          binary="$(brew --prefix minecart)/libexec/minecart"
+          if [ "$RUNNER_OS" = "macOS" ]; then otool -L "$binary"; else ldd "$binary"; fi
+          nm -u "$binary" | grep -Ec 'pcre2_|yaml_|inflate|deflate|iconv|__gmp|SSL_|EVP_|OPENSSL_|sqlite3_|GC_' || true
