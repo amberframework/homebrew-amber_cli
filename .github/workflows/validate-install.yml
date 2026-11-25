@@ -79,6 +79,9 @@ jobs:
           mkdir -p "$HOME/Documents/amber-install-from-here"
           cd "$HOME/Documents/amber-install-from-here"
         fi
+        # Homebrew builds a dependency from source only when asked; where minecart
+        # has no bottle for the runner, installing it first builds it as a target.
+        brew install amberframework/amber_cli/minecart
         brew install amberframework/amber_cli/amber_cli
         brew test amber_cli
         amber --version

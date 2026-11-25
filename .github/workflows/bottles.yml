@@ -77,6 +77,14 @@ jobs:
           test "$POURED" = "true"
           crystal-alpha --version
 
+      # Homebrew builds a dependency from source only when asked, so a formula of
+      # this tap that another one needs (amber_cli needs minecart) is built first.
+      - name: Build this tap's dependencies
+        run: |
+          for DEPENDENCY in $(brew deps --full-name "$FORMULA" | grep "^$TAP/" || true); do
+            brew install --build-from-source "$DEPENDENCY"
+          done
+
       - name: Build for bottling
         run: brew install --build-bottle "$FORMULA"
 
