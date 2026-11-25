@@ -1,9 +1,9 @@
 class AmberCli < Formula
   desc "Command-line tool and LSP for the Amber web framework (Crystal)"
   homepage "https://amberframework.org"
-  url "https://github.com/amberframework/amber_cli/releases/download/v2.0.16/amber_cli-source-2.0.16.tar.gz"
-  # Published asset of CLI tag v2.0.16 (commit 86e46fbe18aeb79c73a14205694359ddc9bc17b4); its contents equal that tree.
-  sha256 "a4f67fe609d3027189e2082abdd07cd88096088977627f6bffb6aafc73516e51"
+  url "https://github.com/amberframework/amber_cli/releases/download/v2.0.17/amber_cli-source-2.0.17.tar.gz"
+  # Published asset of CLI tag v2.0.17 (commit 20fbaeec4c88ecfd255d6e3b36623c023b908266); its contents equal that tree.
+  sha256 "2617187e439c1e5c5716864ae8c0dc37690b3b085deda8676f046f9ba38ce65d"
   license "MIT"
 
   depends_on "crystal"
@@ -23,11 +23,13 @@ class AmberCli < Formula
     ENV["SHARDS_CACHE_PATH"] = (buildpath/".minecart-cache").to_s
     ENV["CRYSTAL_CACHE_DIR"] = (buildpath/".crystal-cache").to_s
     # The source archive has no git checkout, so the formula names the commit amber-lsp reports.
-    ENV["AMBER_CLI_BUILD_COMMIT"] = "86e46fbe18ae"
+    ENV["AMBER_CLI_BUILD_COMMIT"] = "20fbaeec4c88"
     # --frozen installs exactly shard.lock and verifies each shard's SHA-256 checksum.
     system "minecart", "install", "--frozen", "--production", "--skip-ai-docs",
            "--skip-postinstall", "--skip-executables"
-    system "crystal", "build", "src/amber_cli.cr", "--release", "-o", "amber"
+    # amber calls no OpenSSL: Beryl does its cryptography and its database drivers
+    # speak TLS 1.3 on Beryl, so the binary links no libssl or libcrypto.
+    system "crystal", "build", "src/amber_cli.cr", "-Dwithout_openssl", "--release", "-o", "amber"
     system "crystal", "build", "src/amber_lsp.cr", "--release", "-o", "amber-lsp"
     bin.install "amber", "amber-lsp"
 
@@ -44,8 +46,8 @@ class AmberCli < Formula
   test do
     # Same $PWD reset as install: the test sandbox denies the same folders.
     ENV["PWD"] = testpath.to_s
-    assert_match "Amber CLI v2.0.16", shell_output("#{bin}/amber --version")
-    assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.16, commit 86e46fbe18ae)\n",
+    assert_match "Amber CLI v2.0.17", shell_output("#{bin}/amber --version")
+    assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.17, commit 20fbaeec4c88)\n",
                  shell_output("#{bin}/amber-lsp --version")
     assert_match "Minecart 2025.11.25.9", shell_output("#{formula_opt_bin("minecart")}/minecart --version")
     checksum_path = pkgshare/"checksums.txt"
@@ -57,10 +59,15 @@ class AmberCli < Formula
     system bin/"amber", "new", "brew_test_app", "--type", "web", "-y", "--no-deps"
     shard = (testpath/"brew_test_app"/"shard.yml").read
     policy = (testpath/"brew_test_app"/".minecart-policy.yml").read
-    assert_match "commit: 0830e3fdbc5e05be851c3c7ae7bf03b67be10732 # v2.0.0-beta.15", shard
-    assert_match "commit: b83a82f0261509d4ce1f26fadb318c8ba132a066 # v0.26.0", shard
-    assert_match "commit: 84f3188239e43dc6e0bcfd2e72074e8ec67156cd # v0.40.0", shard
+    assert_match "commit: 261cf2d3b4a6f3292fefb8113e71e0fe6900fcee # v2.0.0-beta.16", shard
+    assert_match "commit: 4ba859e673a85de91b5dd815556ee83be3cc13b2 # v0.28.2", shard
+    assert_match "commit: 9a0447c0e10d645307e8532c7794b89491281210 # v0.40.1", shard
     assert_match "require_exact: true", policy
+
+    if OS.mac?
+      linkage = shell_output("otool -L #{bin}/amber")
+      refute_match(/libssl|libcrypto/, linkage)
+    end
 
     crystal_alpha_directory = testpath/"tool-bin"
     crystal_alpha_directory.mkpath
