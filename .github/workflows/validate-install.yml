@@ -1,6 +1,7 @@
 name: Validate Install
 
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch:
@@ -12,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, ubuntu-24.04-arm]
+        os: [macos-26, ubuntu-latest, ubuntu-24.04-arm]
     env:
       HOMEBREW_NO_AUTO_UPDATE: "1"
       HOMEBREW_NO_INSTALL_CLEANUP: "1"
@@ -42,6 +43,26 @@ jobs:
         uname -a
         uname -m
 
+    # The formulae build with the AgentC compiler. On the GitHub runners Homebrew
+    # builds it from source unless asked for its bottle, so it is installed first,
+    # from its bottle, at a reviewed commit of its tap.
+    - name: Install the AgentC compiler from its bottle
+      env:
+        COMPILER_TAP: crimson-knight/agent-crystal
+        COMPILER_TAP_COMMIT: eaf15a1652b02c760138336d5c233b36d71a48e9
+      run: |
+        if [ "$RUNNER_OS" = "Linux" ]; then
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        fi
+        brew tap "$COMPILER_TAP"
+        compiler_tap_path="$(brew --repo "$COMPILER_TAP")"
+        git -C "$compiler_tap_path" fetch --quiet origin "$COMPILER_TAP_COMMIT"
+        git -C "$compiler_tap_path" checkout --quiet --detach "$COMPILER_TAP_COMMIT"
+        test "$(git -C "$compiler_tap_path" rev-parse HEAD)" = "$COMPILER_TAP_COMMIT"
+        brew trust --tap "$COMPILER_TAP"
+        brew install --force-bottle "$COMPILER_TAP/agent-crystal"
+        crystal-alpha --version
+
     - name: Install Amber CLI
       run: |
         if [ "$RUNNER_OS" = "Linux" ]; then
@@ -58,11 +79,18 @@ jobs:
           mkdir -p "$HOME/Documents/amber-install-from-here"
           cd "$HOME/Documents/amber-install-from-here"
         fi
+        # Homebrew builds a dependency from source only when asked; where minecart
+        # has no bottle for the runner, installing it first builds it as a target.
+        brew install amberframework/amber_cli/minecart
         brew install amberframework/amber_cli/amber_cli
+        # Show amber-lsp's lookup in full before the formula test asserts on it.
+        lookup_probe="$(mktemp -d)"
+        (cd "$lookup_probe" && amber new lookup_probe --type web -y --no-deps >/dev/null &&
+          cd lookup_probe && amber-lsp lookup 'Dir.mkdir_p'; echo "amber-lsp lookup exit $?") || true
         brew test amber_cli
         amber --version
         test -x "$(command -v amber-lsp)"
-        crystal --version
+        crystal-alpha --version
         minecart --version
 
     - name: Verify macOS runtime linkage
@@ -71,7 +99,7 @@ jobs:
         otool -L "$(command -v amber)"
         otool -L "$(command -v amber-lsp)"
         ! otool -L "$(command -v amber)" "$(command -v amber-lsp)" | grep -F 'openssl@1.1'
-        # Amber CLI 2.0.17 links no OpenSSL.
+        # Amber CLI 2.0.18 links no OpenSSL.
         ! otool -L "$(command -v amber)" | grep -E 'libssl|libcrypto'
 
     - name: Scaffold and Build Web App
@@ -117,8 +145,8 @@ jobs:
         amber database migrate
         env AMBER_ENV=test amber database migrate
         amber assets check
-        crystal spec
-        crystal build src/smoke_app.cr -o bin/smoke_app
+        crystal-alpha spec
+        crystal-alpha build src/smoke_app.cr -o bin/smoke_app
 
     - name: Launch and probe Web App
       run: |

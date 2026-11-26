@@ -1,15 +1,15 @@
 class AmberCli < Formula
   desc "Command-line tool and LSP for the Amber web framework (Crystal)"
   homepage "https://amberframework.org"
-  url "https://github.com/amberframework/amber_cli/releases/download/v2.0.17/amber_cli-source-2.0.17.tar.gz"
-  # Published asset of CLI tag v2.0.17 (commit 20fbaeec4c88ecfd255d6e3b36623c023b908266); its contents equal that tree.
-  sha256 "2617187e439c1e5c5716864ae8c0dc37690b3b085deda8676f046f9ba38ce65d"
+  url "https://github.com/amberframework/amber_cli/releases/download/v2.0.18/amber_cli-source-2.0.18.tar.gz"
+  # Published asset of CLI tag v2.0.18 (commit 19ca278d56c081c67a51ea21a88bbfdc381ed770); its contents equal that tree.
+  sha256 "7b559647f574b72db755b6e5438fc595a467535b44ee1fa08d14bba31cfd8173"
   license "MIT"
 
-  depends_on "crystal"
+  # amber and amber-lsp build with the AgentC compiler, and amber-lsp runs it to index projects.
+  depends_on "crimson-knight/agent-crystal/agent-crystal"
   depends_on "libpq"
   depends_on "minecart"
-  depends_on "mysql-client"
   depends_on "openssl@3"
   depends_on "sqlite"
 
@@ -23,33 +23,42 @@ class AmberCli < Formula
     ENV["SHARDS_CACHE_PATH"] = (buildpath/".minecart-cache").to_s
     ENV["CRYSTAL_CACHE_DIR"] = (buildpath/".crystal-cache").to_s
     # The source archive has no git checkout, so the formula names the commit amber-lsp reports.
-    ENV["AMBER_CLI_BUILD_COMMIT"] = "20fbaeec4c88"
+    ENV["AMBER_CLI_BUILD_COMMIT"] = "19ca278d56c0"
     # --frozen installs exactly shard.lock and verifies each shard's SHA-256 checksum.
     system "minecart", "install", "--frozen", "--production", "--skip-ai-docs",
            "--skip-postinstall", "--skip-executables"
     # amber calls no OpenSSL: Beryl does its cryptography and its database drivers
     # speak TLS 1.3 on Beryl, so the binary links no libssl or libcrypto.
-    system "crystal", "build", "src/amber_cli.cr", "-Dwithout_openssl", "--release", "-o", "amber"
-    system "crystal", "build", "src/amber_lsp.cr", "--release", "-o", "amber-lsp"
+    system crystal_alpha, "build", "src/amber_cli.cr", "-Dwithout_openssl", "--release", "-o", "amber"
+    system crystal_alpha, "build", "src/amber_lsp.cr", "--release", "-o", "amber-lsp"
     bin.install "amber", "amber-lsp"
-
-    checksum_directory = pkgshare
-    checksum_directory.mkpath
-    lsp_sha256 = (bin/"amber-lsp").sha256
-    (checksum_directory/"checksums.txt").write("#{lsp_sha256}  amber-lsp\n")
 
     api_directory = pkgshare/"api"
     api_directory.mkpath
     api_directory.install buildpath/"src/amber_lsp/cards/crystal.yml"
   end
 
+  # Agent hooks check amber-lsp against share/amber_cli/checksums.txt. Homebrew
+  # rewrites and re-signs the binary when it bottles and pours it, so the digest is
+  # taken here, of the bytes the keg finally holds.
+  post_install_steps do
+    run "/usr/bin/shasum", args:           ["-a", "256", "amber-lsp"],
+                           chdir:          "{{bin}}",
+                           stdout_path:    "{{pkgshare}}/checksums.txt",
+                           writable_paths: ["{{pkgshare}}"]
+  end
+
+  def crystal_alpha
+    formula_opt_bin("crimson-knight/agent-crystal/agent-crystal")/"crystal-alpha"
+  end
+
   test do
     # Same $PWD reset as install: the test sandbox denies the same folders.
     ENV["PWD"] = testpath.to_s
-    assert_match "Amber CLI v2.0.17", shell_output("#{bin}/amber --version")
-    assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.17, commit 20fbaeec4c88)\n",
+    assert_match "Amber CLI v2.0.18", shell_output("#{bin}/amber --version")
+    assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.18, commit 19ca278d56c0)\n",
                  shell_output("#{bin}/amber-lsp --version")
-    assert_match "Minecart 2025.11.25.9", shell_output("#{formula_opt_bin("minecart")}/minecart --version")
+    assert_match "Minecart 2025.11.25.10", shell_output("#{formula_opt_bin("minecart")}/minecart --version")
     checksum_path = pkgshare/"checksums.txt"
     assert_equal "#{(bin/"amber-lsp").sha256}  amber-lsp\n", checksum_path.read
     api_card_path = pkgshare/"api/crystal.yml"
@@ -69,10 +78,7 @@ class AmberCli < Formula
       refute_match(/libssl|libcrypto/, linkage)
     end
 
-    crystal_alpha_directory = testpath/"tool-bin"
-    crystal_alpha_directory.mkpath
-    (crystal_alpha_directory/"crystal-alpha").make_symlink(formula_opt_bin("crystal")/"crystal")
-    ENV.prepend_path "PATH", crystal_alpha_directory
+    ENV.prepend_path "PATH", crystal_alpha.dirname
 
     check_file = testpath/"formula_check.cr"
     check_file.write("puts \"amber-lsp formula check\"\n")

@@ -4,7 +4,9 @@ set -euo pipefail
 grep -F 'brew trust --tap amberframework/amber_cli' README.md .github/workflows/validate-install.yml
 grep -F 'brew install amberframework/amber_cli/amber_cli' README.md .github/workflows/validate-install.yml
 grep -F 'depends_on "minecart"' Formula/amber_cli.rb
-grep -F 'depends_on "crystal"' Formula/amber_cli.rb Formula/minecart.rb
+grep -F 'depends_on "crimson-knight/agent-crystal/agent-crystal"' Formula/amber_cli.rb Formula/minecart.rb
+if grep -F 'depends_on "crystal"' Formula/amber_cli.rb Formula/minecart.rb; then exit 1; fi
+if grep -F 'mysql-client' Formula/amber_cli.rb; then exit 1; fi
 grep -F 'conflicts_with "amber"' Formula/amber_cli.rb
 grep -F 'minecart install --frozen' README.md .github/workflows/validate-install.yml
 grep -F 'amber database migrate' .github/workflows/validate-install.yml

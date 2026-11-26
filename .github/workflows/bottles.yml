@@ -1,0 +1,203 @@
+name: Bottles
+
+# Builds prebuilt Apple silicon bottles of minecart and amber_cli on macOS 26
+# (Homebrew pours them on macOS 26 and later) and runs each formula's test.
+#
+# On a pull request it stops there, so the pull request shows whether the
+# formulae still bottle. Started by hand on main, it also publishes each bottle
+# as an asset of the tap release <formula>-<version>, writes the bottle blocks
+# (each bottle pinned by sha256) into the formulae, pushes that commit to main,
+# and runs verify-bottles.yml on it:
+#   gh workflow run bottles.yml -R amberframework/homebrew-amber_cli --ref main
+#
+# Both formulae build with the AgentC compiler, agent-crystal, poured from its
+# own bottle at a reviewed commit of its tap.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: bottles-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  HOMEBREW_NO_AUTO_UPDATE: 1
+  HOMEBREW_NO_INSTALL_FROM_API: 1
+  TAP: amberframework/amber_cli
+  COMPILER_TAP: crimson-knight/agent-crystal
+  COMPILER_TAP_COMMIT: eaf15a1652b02c760138336d5c233b36d71a48e9
+  COMPILER: crimson-knight/agent-crystal/agent-crystal
+
+jobs:
+  build:
+    name: "${{ matrix.formula }} bottle on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-26
+        formula:
+          - minecart
+          - amber_cli
+    env:
+      FORMULA: amberframework/amber_cli/${{ matrix.formula }}
+    steps:
+      - name: Check out tap
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@4790763c0a3ba4036f72634dc079c4a7dfcd4878
+
+      - name: Register tap checkout
+        run: |
+          brew tap --custom-remote "$TAP" "$PWD"
+          # Homebrew 7 loads formulae from a non-official tap only once they are trusted.
+          brew trust --tap "$TAP"
+
+      # On the GitHub runners Homebrew builds agent-crystal from source unless asked
+      # for the bottle, so it is installed first, from its bottle, at a reviewed commit.
+      - name: Install the AgentC compiler from its bottle
+        run: |
+          brew tap "$COMPILER_TAP"
+          COMPILER_TAP_DIR="$(brew --repository "$COMPILER_TAP")"
+          git -C "$COMPILER_TAP_DIR" fetch --quiet origin "$COMPILER_TAP_COMMIT"
+          git -C "$COMPILER_TAP_DIR" checkout --quiet --detach "$COMPILER_TAP_COMMIT"
+          test "$(git -C "$COMPILER_TAP_DIR" rev-parse HEAD)" = "$COMPILER_TAP_COMMIT"
+          brew trust --tap "$COMPILER_TAP"
+          brew install --force-bottle "$COMPILER"
+          POURED=$(brew info --json=v2 "$COMPILER" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["formulae"][0]["installed"][0]["poured_from_bottle"]')
+          echo "poured_from_bottle=$POURED"
+          test "$POURED" = "true"
+          crystal-alpha --version
+
+      # Homebrew builds a dependency from source only when asked, so a formula of
+      # this tap that another one needs (amber_cli needs minecart) is built first.
+      - name: Build this tap's dependencies
+        run: |
+          for DEPENDENCY in $(brew deps --full-name "$FORMULA" | grep "^$TAP/" || true); do
+            brew install --build-from-source "$DEPENDENCY"
+          done
+
+      - name: Build for bottling
+        run: brew install --build-bottle "$FORMULA"
+
+      - name: Write the bottle
+        run: |
+          VERSION=$(brew info --json=v2 "$FORMULA" | ruby -rjson -e '
+            formula = JSON.parse(STDIN.read)["formulae"][0]
+            revision = formula["revision"].to_i
+            puts formula["versions"]["stable"] + (revision.positive? ? "_#{revision}" : "")')
+          mkdir -p bottles && cd bottles
+          brew bottle --json \
+            --root-url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${{ matrix.formula }}-${VERSION}" \
+            "$FORMULA"
+          ls -l
+
+      # --build-bottle leaves out the post-install steps, so they run here, after
+      # the bottle is written, and the bottle carries nothing they write.
+      - name: Post-install and formula test
+        run: |
+          brew postinstall "$FORMULA"
+          brew test "$FORMULA"
+
+      - name: Keep the bottle
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bottle-${{ matrix.formula }}-${{ matrix.os }}
+          path: bottles/
+          if-no-files-found: error
+
+  publish:
+    name: Publish bottles and pin them in the formulae
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: macos-26
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    outputs:
+      commit: ${{ steps.push.outputs.commit }}
+    steps:
+      - name: Check out tap
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@4790763c0a3ba4036f72634dc079c4a7dfcd4878
+
+      - name: Register tap checkout
+        run: |
+          brew tap --custom-remote "$TAP" "$PWD"
+          brew trust --tap "$TAP"
+          brew tap "$COMPILER_TAP"
+          COMPILER_TAP_DIR="$(brew --repository "$COMPILER_TAP")"
+          git -C "$COMPILER_TAP_DIR" fetch --quiet origin "$COMPILER_TAP_COMMIT"
+          git -C "$COMPILER_TAP_DIR" checkout --quiet --detach "$COMPILER_TAP_COMMIT"
+          brew trust --tap "$COMPILER_TAP"
+
+      - name: Collect bottles
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          pattern: bottle-*
+          path: bottles
+          merge-multiple: true
+
+      - name: Check each bottle against its sha256 and name it for upload
+        run: ruby scripts/prepare_bottle_assets.rb bottles
+
+      - name: Publish the release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          while read -r NAME; do
+            TAG=$(cat "bottles/$NAME/release_tag.txt")
+            # The tap checkout is registered with Homebrew, which changes its remotes, so
+            # gh is told the repository.
+            if gh release view "$TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              gh release upload "$TAG" "bottles/$NAME/upload/"* -R "$GITHUB_REPOSITORY" --clobber
+            else
+              gh release create "$TAG" "bottles/$NAME/upload/"* -R "$GITHUB_REPOSITORY" --title "$TAG bottles" --notes-file "bottles/$NAME/release_notes.md"
+            fi
+          done < bottles/list_of_formulae.txt
+
+      - name: Write the bottle blocks
+        run: |
+          brew bottle --merge --write --no-commit bottles/*.bottle.json
+          while read -r NAME; do
+            # On macOS the registered tap is this checkout, so the file is already here.
+            TAPPED_FORMULA="$(brew --repository "$TAP")/Formula/$NAME.rb"
+            [ "$TAPPED_FORMULA" -ef "Formula/$NAME.rb" ] || cp "$TAPPED_FORMULA" "Formula/$NAME.rb"
+            grep -q "^  bottle do" "Formula/$NAME.rb"
+          done < bottles/list_of_formulae.txt
+          scripts/check_beta_contract.sh
+          git diff --stat
+
+      - name: Commit and push
+        id: push
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/
+          git commit -m "$(cat bottles/commit_message.txt)"
+          # Registering the checkout as a tap repoints its origin and drops the
+          # credentials checkout stored, so push to GitHub by URL with the job token.
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  verify:
+    needs: publish
+    permissions:
+      contents: read
+    uses: ./.github/workflows/verify-bottles.yml
+    with:
+      ref: ${{ needs.publish.outputs.commit }}

@@ -1,0 +1,86 @@
+name: Verify bottles
+
+# Installs minecart and amber_cli on main from their published bottles on macOS
+# 26, requires Homebrew to have poured each bottle (downloaded and checked
+# against the sha256 in the formula), and runs each formula test.
+# The Bottles workflow calls it after publishing; run it by hand any time:
+#   gh workflow run verify-bottles.yml -R amberframework/homebrew-amber_cli --ref main
+#
+# setup-homebrew checks out the commit that triggered the run, which for a call
+# from Bottles predates the bottle block; the job therefore checks out the
+# requested ref again before installing. --force-bottle makes a missing bottle
+# fail the job instead of building from source.
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: true
+
+permissions: {}
+
+env:
+  HOMEBREW_NO_AUTO_UPDATE: 1
+  TAP: amberframework/amber_cli
+  COMPILER_TAP: crimson-knight/agent-crystal
+  COMPILER_TAP_COMMIT: eaf15a1652b02c760138336d5c233b36d71a48e9
+  COMPILER: crimson-knight/agent-crystal/agent-crystal
+
+jobs:
+  verify:
+    name: "${{ matrix.os }} pours the bottles"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-26
+    steps:
+      - name: Check out the published tap
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.ref || 'main' }}
+
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@4790763c0a3ba4036f72634dc079c4a7dfcd4878
+
+      - name: Put the tap at the commit under test
+        env:
+          COMMIT: ${{ inputs.ref || 'main' }}
+        run: |
+          git fetch --quiet origin "$COMMIT"
+          git checkout --quiet --force -B main FETCH_HEAD
+          TAP_HEAD="$(git -C "$(brew --repository "$TAP")" rev-parse HEAD)"
+          echo "tap is at $TAP_HEAD"
+          test "$TAP_HEAD" = "$(git rev-parse FETCH_HEAD)"
+
+      - name: Register tap checkouts
+        run: |
+          brew tap --custom-remote "$TAP" "$PWD"
+          brew trust --tap "$TAP"
+          brew tap "$COMPILER_TAP"
+          COMPILER_TAP_DIR="$(brew --repository "$COMPILER_TAP")"
+          git -C "$COMPILER_TAP_DIR" fetch --quiet origin "$COMPILER_TAP_COMMIT"
+          git -C "$COMPILER_TAP_DIR" checkout --quiet --detach "$COMPILER_TAP_COMMIT"
+          brew trust --tap "$COMPILER_TAP"
+
+      - name: Install from the bottles
+        run: |
+          for NAME in "$COMPILER" "$TAP/minecart" "$TAP/amber_cli"; do
+            brew install --force-bottle "$NAME"
+            POURED=$(brew info --json=v2 "$NAME" | ruby -rjson -e 'puts JSON.parse(STDIN.read)["formulae"][0]["installed"][0]["poured_from_bottle"]')
+            echo "$NAME poured_from_bottle=$POURED"
+            test "$POURED" = "true"
+          done
+
+      - name: Smoke test and formula tests
+        run: |
+          minecart --version
+          amber --version
+          amber-lsp --version
+          brew test "$TAP/minecart" "$TAP/amber_cli"
