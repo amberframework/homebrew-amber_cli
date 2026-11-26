@@ -58,7 +58,7 @@ class AmberCli < Formula
     assert_match "Amber CLI v2.0.18", shell_output("#{bin}/amber --version")
     assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.18, commit 19ca278d56c0)\n",
                  shell_output("#{bin}/amber-lsp --version")
-    assert_match "Minecart 2025.11.25.9", shell_output("#{formula_opt_bin("minecart")}/minecart --version")
+    assert_match "Minecart 2025.11.25.10", shell_output("#{formula_opt_bin("minecart")}/minecart --version")
     checksum_path = pkgshare/"checksums.txt"
     assert_equal "#{(bin/"amber-lsp").sha256}  amber-lsp\n", checksum_path.read
     api_card_path = pkgshare/"api/crystal.yml"

@@ -17,7 +17,7 @@ commit, and ends with the one Amber install command
 Run the complete sequence from the guide; installing from the moving tip of
 the tap leaves the formula revision unpinned.
 
-The formula installs Amber CLI 2.0.18, `amber-lsp`, Minecart 2025.11.25.9, the
+The formula installs Amber CLI 2.0.18, `amber-lsp`, Minecart 2025.11.25.10, the
 AgentC Crystal compiler (`crimson-knight/agent-crystal`, which provides
 `crystal-alpha`), and the required SQLite, OpenSSL, and PostgreSQL libraries.
 On Apple silicon with macOS 26 or later, Homebrew pours prebuilt bottles of
@@ -34,7 +34,7 @@ used for the install.
 
 Both source archives are published release assets: Amber CLI
 [v2.0.18](https://github.com/amberframework/amber_cli/releases/tag/v2.0.18) and
-Minecart [v2025.11.25.9](https://github.com/crimson-knight/shards/releases/tag/v2025.11.25.9).
+Minecart [v2025.11.25.10](https://github.com/crimson-knight/shards/releases/tag/v2025.11.25.10).
 Each formula pins its archive's SHA-256, and a mismatch stops the install.
 
 `amber-lsp` and `amber setup:agent` also work in plain Crystal apps and shards;
