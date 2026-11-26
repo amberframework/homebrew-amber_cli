@@ -1,13 +1,10 @@
 class AmberCli < Formula
   desc "Command-line tool and LSP for the Amber web framework (Crystal)"
   homepage "https://amberframework.org"
-  url "https://github.com/amberframework/amber_cli/releases/download/v2.0.17/amber_cli-source-2.0.17.tar.gz"
-  # Published asset of CLI tag v2.0.17 (commit 20fbaeec4c88ecfd255d6e3b36623c023b908266); its contents equal that tree.
-  sha256 "2617187e439c1e5c5716864ae8c0dc37690b3b085deda8676f046f9ba38ce65d"
+  url "https://github.com/amberframework/amber_cli/releases/download/v2.0.18/amber_cli-source-2.0.18.tar.gz"
+  # Published asset of CLI tag v2.0.18 (commit 19ca278d56c081c67a51ea21a88bbfdc381ed770); its contents equal that tree.
+  sha256 "7b559647f574b72db755b6e5438fc595a467535b44ee1fa08d14bba31cfd8173"
   license "MIT"
-  # Revision 1 builds with agent-crystal and ships bottles, so `brew upgrade` replaces
-  # a copy built with homebrew-core crystal.
-  revision 1
 
   # amber and amber-lsp build with the AgentC compiler, and amber-lsp runs it to index projects.
   depends_on "crimson-knight/agent-crystal/agent-crystal"
@@ -26,7 +23,7 @@ class AmberCli < Formula
     ENV["SHARDS_CACHE_PATH"] = (buildpath/".minecart-cache").to_s
     ENV["CRYSTAL_CACHE_DIR"] = (buildpath/".crystal-cache").to_s
     # The source archive has no git checkout, so the formula names the commit amber-lsp reports.
-    ENV["AMBER_CLI_BUILD_COMMIT"] = "20fbaeec4c88"
+    ENV["AMBER_CLI_BUILD_COMMIT"] = "19ca278d56c0"
     # --frozen installs exactly shard.lock and verifies each shard's SHA-256 checksum.
     system "minecart", "install", "--frozen", "--production", "--skip-ai-docs",
            "--skip-postinstall", "--skip-executables"
@@ -58,8 +55,8 @@ class AmberCli < Formula
   test do
     # Same $PWD reset as install: the test sandbox denies the same folders.
     ENV["PWD"] = testpath.to_s
-    assert_match "Amber CLI v2.0.17", shell_output("#{bin}/amber --version")
-    assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.17, commit 20fbaeec4c88)\n",
+    assert_match "Amber CLI v2.0.18", shell_output("#{bin}/amber --version")
+    assert_equal "amber-lsp 1.0.0 (amber_cli 2.0.18, commit 19ca278d56c0)\n",
                  shell_output("#{bin}/amber-lsp --version")
     assert_match "Minecart 2025.11.25.9", shell_output("#{formula_opt_bin("minecart")}/minecart --version")
     checksum_path = pkgshare/"checksums.txt"

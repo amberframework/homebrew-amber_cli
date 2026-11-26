@@ -28,7 +28,7 @@ env:
   HOMEBREW_NO_INSTALL_FROM_API: 1
   TAP: amberframework/amber_cli
   COMPILER_TAP: crimson-knight/agent-crystal
-  COMPILER_TAP_COMMIT: f410d5034319346f2f0a88b4de53c9fe6ce17d76
+  COMPILER_TAP_COMMIT: eaf15a1652b02c760138336d5c233b36d71a48e9
   COMPILER: crimson-knight/agent-crystal/agent-crystal
 
 jobs:

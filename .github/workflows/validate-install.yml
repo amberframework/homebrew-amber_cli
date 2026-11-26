@@ -49,7 +49,7 @@ jobs:
     - name: Install the AgentC compiler from its bottle
       env:
         COMPILER_TAP: crimson-knight/agent-crystal
-        COMPILER_TAP_COMMIT: f410d5034319346f2f0a88b4de53c9fe6ce17d76
+        COMPILER_TAP_COMMIT: eaf15a1652b02c760138336d5c233b36d71a48e9
       run: |
         if [ "$RUNNER_OS" = "Linux" ]; then
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
@@ -99,7 +99,7 @@ jobs:
         otool -L "$(command -v amber)"
         otool -L "$(command -v amber-lsp)"
         ! otool -L "$(command -v amber)" "$(command -v amber-lsp)" | grep -F 'openssl@1.1'
-        # Amber CLI 2.0.17 links no OpenSSL.
+        # Amber CLI 2.0.18 links no OpenSSL.
         ! otool -L "$(command -v amber)" | grep -E 'libssl|libcrypto'
 
     - name: Scaffold and Build Web App
