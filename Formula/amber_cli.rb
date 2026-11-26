@@ -6,6 +6,12 @@ class AmberCli < Formula
   sha256 "7b559647f574b72db755b6e5438fc595a467535b44ee1fa08d14bba31cfd8173"
   license "MIT"
 
+  bottle do
+    root_url "https://github.com/amberframework/homebrew-amber_cli/releases/download/amber_cli-2.0.18"
+    rebuild 1
+    sha256 arm64_tahoe: "e275f42bc9d402a7d93c2c5d77955f012cff2993d156c95e2480c0c526624bf0"
+  end
+
   # amber and amber-lsp build with the AgentC compiler, and amber-lsp runs it to index projects.
   depends_on "crimson-knight/agent-crystal/agent-crystal"
   depends_on "libpq"

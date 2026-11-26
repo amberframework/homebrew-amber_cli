@@ -8,6 +8,12 @@ class Minecart < Formula
   sha256 "fc6727f031031eef05da54054a331c8dc004f8fef23878a30f6d43f77c53e671"
   license "Apache-2.0"
 
+  bottle do
+    root_url "https://github.com/amberframework/homebrew-amber_cli/releases/download/minecart-2025.11.25.10"
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_tahoe: "3689a955bfd43c9b1092bbe51aa9a2a782cb3c73000645387e8f91936ef152b6"
+  end
+
   # Minecart builds with the AgentC compiler and runs it to read the Crystal
   # version and to build shard executables. Its Mica and Beryl stand in for
   # PCRE2, libyaml, zlib, libiconv and OpenSSL, so Minecart links only the
